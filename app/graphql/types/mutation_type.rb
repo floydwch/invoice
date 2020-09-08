@@ -6,5 +6,7 @@ module Types
     def test_field
       "Hello World"
     end
+
+    field :updateAdjustments, mutation: Mutations::UpdateAdjustments
   end
 end
