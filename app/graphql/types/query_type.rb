@@ -9,5 +9,10 @@ module Types
     def test_field
       "Hello World!"
     end
+
+    field :lineItems, [LineItemType], null: false, description: 'All line-items'
+    def lineItems
+      LineItem.all.includes(:campaign)
+    end
   end
 end
