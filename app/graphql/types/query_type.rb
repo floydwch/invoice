@@ -10,9 +10,16 @@ module Types
       "Hello World!"
     end
 
-    field :lineItems, [LineItemType], null: false, description: 'All line-items'
-    def lineItems
-      LineItem.all.includes(:campaign)
+    field :lineItems, [LineItemType], null: false, description: 'All line-items' do
+      argument :orderBy, String, required: false
+      argument :direction, String, required: false
+    end
+    def lineItems(orderBy:, direction:)
+      if (LineItem.column_names.include? orderBy) && (['ASC', 'DESC'].include? direction)
+        LineItem.includes(:campaign).order("#{orderBy} #{direction}")
+      else
+        LineItem.all.includes(:campaign)
+      end
     end
   end
 end
