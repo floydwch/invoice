@@ -8,5 +8,6 @@ module Types
     end
 
     field :updateAdjustments, mutation: Mutations::UpdateAdjustments
+    field :review, mutation: Mutations::Review
   end
 end
