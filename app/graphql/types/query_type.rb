@@ -10,7 +10,7 @@ module Types
       "Hello World!"
     end
 
-    field :lineItems, [LineItemType], null: false, description: 'All line-items' do
+    field :lineItems, LineItemType.connection_type, null: false, description: 'All line-items' do
       argument :orderBy, String, required: false
       argument :direction, String, required: false
     end
