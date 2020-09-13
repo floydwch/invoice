@@ -14,7 +14,7 @@ module Types
       argument :orderBy, String, required: false
       argument :direction, String, required: false
     end
-    def lineItems(orderBy:, direction:)
+    def lineItems(orderBy: nil, direction: nil)
       if (LineItem.column_names.include? orderBy) && (['ASC', 'DESC'].include? direction)
         LineItem.includes(:campaign).order("#{orderBy} #{direction}")
       else
