@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  db:
+    image: postgres
+    volumes:
+      - db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: '${DB_ADMIN}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+  web:
+    build: .
+    command:
+      ['rails', 'server', '-b', '0.0.0.0', '-p', '80', '-e', 'development']
+    volumes:
+      - .:/app
+    ports:
+      - '3000:80'
+    environment:
+      DB_HOST: '${DB_HOST}'
+      DB_ADMIN: '${DB_ADMIN}'
+      DB_PASSWORD: '${DB_PASSWORD}'
+    depends_on:
+      - db
+volumes:
+  db:
