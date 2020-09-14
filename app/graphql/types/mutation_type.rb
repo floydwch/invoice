@@ -9,5 +9,6 @@ module Types
 
     field :updateAdjustments, mutation: Mutations::UpdateAdjustments
     field :review, mutation: Mutations::Review
+    field :export, mutation: Mutations::Export
   end
 end

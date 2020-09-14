@@ -21,5 +21,15 @@ module Types
         LineItem.all.includes(:campaign)
       end
     end
+
+    field :exportation, ExportationType, null: false, description: 'Get exportation by token' do
+      argument :token, String, required: true
+    end
+    def exportation(token:)
+      exportation = Exportation.find_by(token: token)
+      result = exportation.as_json
+      result[:url] = Rails.application.routes.url_helpers.rails_blob_path(exportation.file, only_path: true)
+      return result
+    end
   end
 end
