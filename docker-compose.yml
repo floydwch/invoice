@@ -13,12 +13,12 @@ services:
       discovery.type: single-node
     volumes:
       - elasticsearch:/usr/share/elasticsearch/data
-  web:
-    build: .
+  api:
+    build: api_server
     command:
       ['rails', 'server', '-b', '0.0.0.0', '-p', '80', '-e', 'development']
     volumes:
-      - .:/app
+      - ./api_server:/app
     ports:
       - '3000:80'
     environment:
