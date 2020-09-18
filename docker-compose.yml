@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   db:
     image: postgres
@@ -17,28 +18,44 @@ services:
     build: api_server
     command:
       ['rails', 'server', '-b', '0.0.0.0', '-p', '80', '-e', 'development']
-    volumes:
-      - ./api_server:/app
-    ports:
-      - '3000:80'
     environment:
       DB_HOST: '${DB_HOST}'
       DB_ADMIN: '${DB_ADMIN}'
       DB_PASSWORD: '${DB_PASSWORD}'
       ELASTICSEARCH_URL: elasticsearch
+    volumes:
+      - ./api_server:/app
     depends_on:
       - db
       - elasticsearch
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.api.entrypoints=web'
+      - 'traefik.http.routers.api.rule=PathPrefix(`/graphql`, `/graphiql`, `/assets`)'
   web:
     build: web
     command: ['yarn', 'run', 'dev', '-p', '80']
     volumes:
       - ./web:/app
       - /app/.next
-    ports:
-      - '4000:80'
     depends_on:
       - api
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.web.entrypoints=web'
+      - 'traefik.http.routers.web.rule=PathPrefix(`/`)'
+  gateway:
+    image: traefik:2.3
+    command:
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+    ports:
+      - '3000:80'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+
 volumes:
   db:
   elasticsearch:
