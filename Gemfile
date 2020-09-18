@@ -56,3 +56,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem "graphql", "~> 1.11"
 
 gem 'graphiql-rails', group: :development
+
+gem "elasticsearch-rails", "~> 7.1"
+
+gem "elasticsearch-model", "~> 7.1"

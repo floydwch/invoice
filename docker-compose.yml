@@ -7,6 +7,12 @@ services:
     environment:
       POSTGRES_USER: '${DB_ADMIN}'
       POSTGRES_PASSWORD: '${DB_PASSWORD}'
+  elasticsearch:
+    image: elasticsearch:7.9.1
+    environment:
+      discovery.type: single-node
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
   web:
     build: .
     command:
@@ -19,7 +25,10 @@ services:
       DB_HOST: '${DB_HOST}'
       DB_ADMIN: '${DB_ADMIN}'
       DB_PASSWORD: '${DB_PASSWORD}'
+      ELASTICSEARCH_URL: elasticsearch
     depends_on:
       - db
+      - elasticsearch
 volumes:
   db:
+  elasticsearch:
