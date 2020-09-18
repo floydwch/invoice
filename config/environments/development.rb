@@ -65,6 +65,6 @@ Rails.application.configure do
     host_ip = `/sbin/ip route|awk '/default/ { print $3 }'`.strip
 
     BetterErrors::Middleware.allow_ip!(host_ip) if defined?(BetterErrors::Middleware)
-    config.web_console.whitelisted_ips = host_ip
+    config.web_console.allowed_ips = host_ip
   end
 end
