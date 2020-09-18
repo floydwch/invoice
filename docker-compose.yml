@@ -29,6 +29,16 @@ services:
     depends_on:
       - db
       - elasticsearch
+  web:
+    build: web
+    command: ['yarn', 'run', 'dev', '-p', '80']
+    volumes:
+      - ./web:/app
+      - /app/.next
+    ports:
+      - '4000:80'
+    depends_on:
+      - api
 volumes:
   db:
   elasticsearch:
