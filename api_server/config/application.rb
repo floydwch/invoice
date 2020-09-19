@@ -17,5 +17,11 @@ module Invoice
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
+
+    config.api_only = true
+    config.session_store :cookie_store, same_site: :strict
+
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use config.session_store, config.session_options
   end
 end
