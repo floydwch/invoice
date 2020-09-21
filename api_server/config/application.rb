@@ -19,6 +19,8 @@ module Invoice
     # the framework and any gems in your application.
 
     config.api_only = true
+    Rails.application.config.hosts << ENV['SERVICE_NAME']
+
     config.session_store :cookie_store, same_site: :strict
 
     config.middleware.use ActionDispatch::Cookies
