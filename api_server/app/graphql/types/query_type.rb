@@ -19,7 +19,7 @@ module Types
       if search
         case search.field
         when 'line_item'
-          records = LineItem.search(search.value).records
+          records = LineItem.search(query: {match: {'name' => search.value}}).records
         when 'campaign'
           records = LineItem.search(query: {match: {'campaign.name' => search.value}}).records
         else
