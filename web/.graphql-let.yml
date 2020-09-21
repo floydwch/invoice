@@ -1,5 +1,6 @@
-schema: ${GRAPHQL_URL}
-documents: '**/*.graphql'
+schema: './schema.graphql'
+documents:
+  - './queries/**/*.graphql'
 plugins:
   - typescript
   - typescript-operations
