@@ -1,0 +1,17 @@
+query LineItems($searchInput: Search) {
+  lineItems(search: $searchInput) {
+    edges {
+      node {
+        id
+        name
+        bookedAmount
+        actualAmount
+        adjustments
+        campaign {
+          id
+          name
+        }
+      }
+    }
+  }
+}
