@@ -28,7 +28,7 @@ module Types
       else
         records = LineItem
       end
-      if (records.column_names.include? orderBy) && (['ASC', 'DESC'].include? direction)
+      if (['name', 'booked_amount', 'actual_amount', 'adjustments', 'campaigns.name'].include? orderBy) && (['ASC', 'DESC'].include? direction)
         return records.includes(:campaign).order("#{orderBy} #{direction}")
       else
         return records.includes(:campaign)
