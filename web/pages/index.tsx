@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { useLineItemsQuery } from '../queries/lineItems.graphql'
@@ -10,15 +9,12 @@ const Container = styled.div`
   padding: 16px;
 `
 
-export default function Home() {
-  const {
-    query: { field, value },
-  } = useRouter()
+export default function Home({ query: { field, value } }) {
   const { data, loading } = useLineItemsQuery({
     variables: {
       searchInput: {
-        field: field as string,
-        value: value as string,
+        field,
+        value,
       },
     },
   })
@@ -48,4 +44,8 @@ export default function Home() {
       ></Table>
     </Container>
   )
+}
+
+export const getServerSideProps = async ({ query }) => {
+  return { props: { query } }
 }
