@@ -1,25 +1,9 @@
-import { HTMLAttributes, useEffect, useState } from 'react'
+import { HTMLAttributes, ReactNode, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import BSTable from 'react-bootstrap/Table'
-import ContentLoader from 'react-content-loader'
 
 import AbstractRadioGroup from '../AbstractRadioGroup'
 import AbstractRadio from '../AbstractRadio'
-
-const TableLoader = (props) => (
-  <ContentLoader
-    viewBox="0 0 240 120"
-    height={120}
-    width={'100%'}
-    speed={2}
-    backgroundColor="transparent"
-    {...props}
-  >
-    <circle cx="60" cy="60" r="8" />
-    <circle cx="120" cy="60" r="8" />
-    <circle cx="180" cy="60" r="8" />
-  </ContentLoader>
-)
 
 interface CaretProps {
   activated?: boolean
@@ -140,6 +124,7 @@ interface TableProps {
   headers: Array<string>
   rows?: Array<RowInterface>
   loading?: boolean
+  loadingPlaceholder?: ReactNode
   orderBy?: OrderByParams
   onOrderBy?: (params: OrderByParams) => void
 }
@@ -150,6 +135,7 @@ export default function Table({
   headers,
   rows,
   loading,
+  loadingPlaceholder,
   orderBy,
   onOrderBy,
 }: TableProps & HTMLAttributes<HTMLTableElement>) {
@@ -233,7 +219,7 @@ export default function Table({
         {thead}
         {tbody}
       </StyledTable>
-      {loading && <TableLoader />}
+      {loading && loadingPlaceholder}
     </>
   )
 }

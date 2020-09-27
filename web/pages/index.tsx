@@ -5,6 +5,7 @@ import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import LoadingPlaceholder from 'react-content-loader'
 
 import {
   useLineItemsQuery,
@@ -50,6 +51,21 @@ const reversedTransArgs = {
   actual_amount: 'actualAmount',
   adjustments: 'adjustments',
 }
+
+const TablePlaceholder = (props) => (
+  <LoadingPlaceholder
+    viewBox="0 0 240 120"
+    height={120}
+    width={'100%'}
+    speed={2}
+    backgroundColor="transparent"
+    {...props}
+  >
+    <circle cx="60" cy="60" r="8" />
+    <circle cx="120" cy="60" r="8" />
+    <circle cx="180" cy="60" r="8" />
+  </LoadingPlaceholder>
+)
 
 export default function Home({ query }) {
   const { field, value, orderBy, direction } = query
@@ -149,6 +165,7 @@ export default function Home({ query }) {
         ]}
         rows={rows}
         loading={loading}
+        loadingPlaceholder={TablePlaceholder}
         orderBy={{ orderBy: reversedTransArgs[orderBy], direction }}
         onOrderBy={handleOrderBy}
       ></StyledTable>
