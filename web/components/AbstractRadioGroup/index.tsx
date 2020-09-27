@@ -5,8 +5,9 @@ interface AbstractRadioContextInterface {
   onChange: (value: string) => any
 }
 
-interface AbstractRadioGroupInterface {
-  defaultValue?: string
+interface AbstractRadioGroupProps {
+  value?: string
+  onChange?: (value: string) => void
 }
 
 type AbstractRadioContextType = AbstractRadioContextInterface | null
@@ -15,11 +16,22 @@ const AbstractRadioContext = createContext<AbstractRadioContextType>(null)
 
 export default function AbstractRadioGroup({
   children,
-  defaultValue,
-}: PropsWithChildren<AbstractRadioGroupInterface>) {
-  const [value, onChange] = useState(defaultValue)
+  value,
+  onChange,
+}: PropsWithChildren<AbstractRadioGroupProps>) {
+  const [curValue, setValue] = useState(value)
   return (
-    <AbstractRadioContext.Provider value={{ value, onChange }}>
+    <AbstractRadioContext.Provider
+      value={{
+        value: curValue,
+        onChange: (value) => {
+          setValue(value)
+          if (onChange) {
+            onChange(value)
+          }
+        },
+      }}
+    >
       {children}
     </AbstractRadioContext.Provider>
   )

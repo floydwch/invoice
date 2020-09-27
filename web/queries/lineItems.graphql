@@ -1,5 +1,10 @@
-query LineItems($searchInput: Search) {
-  lineItems(search: $searchInput) {
+query LineItems($orderBy: String, $direction: String, $searchInput: Search) {
+  lineItems(
+    orderBy: $orderBy
+    direction: $direction
+    search: $searchInput
+    first: 10
+  ) {
     edges {
       node {
         id
