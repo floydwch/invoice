@@ -102,7 +102,8 @@ export default function Home({ query }) {
       const observer = new IntersectionObserver(async (entries) => {
         if (
           entries[0].intersectionRatio === 1 &&
-          data.lineItems.pageInfo.hasNextPage
+          data.lineItems.pageInfo.hasNextPage &&
+          !refreshing
         ) {
           setFetchingMore(true)
           await fetchMore({
@@ -118,7 +119,29 @@ export default function Home({ query }) {
         observer.disconnect()
       }
     }
-  }, [data])
+  }, [data, refreshing])
+
+  useEffect(() => {
+    const handler = async () => {
+      const params = new URLSearchParams(location.search)
+      setRefreshing(true)
+      await refetch({
+        searchParams: {
+          field: params.get('field'),
+          value: params.get('value'),
+        },
+        orderBy: params.get('orderBy'),
+        direction: params.get('direction'),
+      })
+      setRefreshing(false)
+    }
+
+    router.events.on('routeChangeComplete', handler)
+
+    return () => {
+      router.events.off('routeChangeComplete', handler)
+    }
+  }, [])
 
   const handleOrderBy = useCallback(
     async ({ orderBy, direction }: OrderByParams) => {
@@ -134,9 +157,6 @@ export default function Home({ query }) {
         undefined,
         { shallow: true }
       )
-      setRefreshing(true)
-      await refetch(nextQuery)
-      setRefreshing(false)
     },
     [router.query]
   )
@@ -168,9 +188,6 @@ export default function Home({ query }) {
             undefined,
             { shallow: true }
           )
-          setRefreshing(true)
-          await refetch({ searchParams })
-          setRefreshing(false)
         }
       }}
     >
