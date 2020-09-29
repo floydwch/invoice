@@ -15,7 +15,10 @@ import {
 import Table, { OrderByParams } from '../components/Table'
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   max-width: 960px;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 16px;
 `
@@ -35,6 +38,11 @@ const FormRow = styled.div`
 
 const StyledTable = styled(Table)`
   min-width: 900px;
+  flex-grow: 1;
+`
+
+const TableWrapper = styled.div`
+  flex-grow: 1;
 `
 
 const transArgs = {
@@ -192,20 +200,25 @@ export default function Home({ query }) {
           {form}
         </Tab>
       </StyledTabs>
-      <StyledTable
-        headers={[
-          'title',
-          'campaign',
-          'bookedAmount',
-          'actualAmount',
-          'adjustments',
-        ]}
-        rows={rows}
-        loading={!data || refreshing}
-        loadingPlaceholder={<TablePlaceholder uniqueKey="table-placeholder" />}
-        orderBy={{ orderBy: reversedTransArgs[orderBy], direction }}
-        onOrderBy={handleOrderBy}
-      ></StyledTable>
+      <TableWrapper style={{ height: rows?.length ? 'auto' : '1px' }}>
+        <StyledTable
+          headers={[
+            'title',
+            'campaign',
+            'bookedAmount',
+            'actualAmount',
+            'adjustments',
+          ]}
+          rows={rows}
+          emptyPlaceholder={<div>No results.</div>}
+          loading={!data || refreshing}
+          loadingPlaceholder={
+            <TablePlaceholder uniqueKey="table-placeholder" />
+          }
+          orderBy={{ orderBy: reversedTransArgs[orderBy], direction }}
+          onOrderBy={handleOrderBy}
+        ></StyledTable>
+      </TableWrapper>
       <footer ref={footerRef}></footer>
     </Container>
   )

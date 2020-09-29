@@ -1,9 +1,19 @@
 import { HTMLAttributes, ReactNode, useEffect, useState } from 'react'
-import styled from 'styled-components'
+import styled, { createGlobalStyle } from 'styled-components'
 import BSTable from 'react-bootstrap/Table'
 
 import AbstractRadioGroup from '../AbstractRadioGroup'
 import AbstractRadio from '../AbstractRadio'
+
+const GlobalStyle = createGlobalStyle`
+  .table-responsive {
+    min-height: 100%;
+  }
+`
+
+const StyledTable = styled(BSTable)`
+  table-layout: fixed;
+`
 
 interface CaretProps {
   activated?: boolean
@@ -32,10 +42,6 @@ const Caret = styled.div<CaretProps>`
     width: 10px;
     height: 6px;
   }
-`
-
-const StyledTable = styled(BSTable)`
-  table-layout: fixed;
 `
 
 function useCaretDirection(
@@ -123,6 +129,7 @@ export interface OrderByParams {
 interface TableProps {
   headers: Array<string>
   rows?: Array<RowInterface>
+  emptyPlaceholder?: ReactNode
   loading?: boolean
   loadingPlaceholder?: ReactNode
   orderBy?: OrderByParams
@@ -134,6 +141,7 @@ export default function Table({
   style,
   headers,
   rows,
+  emptyPlaceholder,
   loading,
   loadingPlaceholder,
   orderBy,
@@ -200,21 +208,34 @@ export default function Table({
   }
 
   if (!loading) {
-    var tbody = (
-      <tbody>
-        {rows.map(({ id, columns }) => (
-          <tr key={id}>
-            {columns.map((column, i) => (
-              <td key={i}>{column}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    )
+    if (rows.length) {
+      var tbody = (
+        <tbody>
+          {rows.map(({ id, columns }) => (
+            <tr key={id}>
+              {columns.map((column, i) => (
+                <td key={i}>{column}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      )
+    } else {
+      if (emptyPlaceholder) {
+        var tbody = (
+          <tbody>
+            <tr>
+              <td colSpan={headers.length}>{emptyPlaceholder}</td>
+            </tr>
+          </tbody>
+        )
+      }
+    }
   }
 
   return (
     <>
+      <GlobalStyle />
       <StyledTable className={className} style={style} responsive>
         {thead}
         {tbody}
