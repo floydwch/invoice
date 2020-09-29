@@ -74,6 +74,7 @@ export default function Home({ query }) {
   const { field, value, orderBy, direction } = query
   const router = useRouter()
   const [refreshing, setRefreshing] = useState<boolean>(false)
+  const [fetchingMore, setFetchingMore] = useState<boolean>(false)
   const [formInput, setFormInput] = useState<string>('')
   const [curTab, setTab] = useState<string>('campaign')
 
@@ -98,16 +99,18 @@ export default function Home({ query }) {
 
   useEffect(() => {
     if (!pageLoading) {
-      const observer = new IntersectionObserver((entries) => {
+      const observer = new IntersectionObserver(async (entries) => {
         if (
           entries[0].intersectionRatio === 1 &&
           data.lineItems.pageInfo.hasNextPage
         ) {
-          fetchMore({
+          setFetchingMore(true)
+          await fetchMore({
             variables: {
               after: data.lineItems.pageInfo.endCursor,
             },
           })
+          setFetchingMore(false)
         }
       })
       observer.observe(footerRef.current)
@@ -219,6 +222,7 @@ export default function Home({ query }) {
           onOrderBy={handleOrderBy}
         ></StyledTable>
       </TableWrapper>
+      {fetchingMore && <TablePlaceholder uniqueKey="table-placeholder" />}
       <footer ref={footerRef}></footer>
     </Container>
   )
