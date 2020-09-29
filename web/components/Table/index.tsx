@@ -215,7 +215,7 @@ export default function Table({
 
   return (
     <>
-      <StyledTable responsive className={className} style={style}>
+      <StyledTable className={className} style={style} responsive>
         {thead}
         {tbody}
       </StyledTable>

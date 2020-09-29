@@ -1,8 +1,14 @@
-query LineItems($orderBy: String, $direction: String, $searchInput: Search) {
+query LineItems(
+  $orderBy: String
+  $direction: String
+  $searchParams: Search
+  $after: String
+) {
   lineItems(
     orderBy: $orderBy
     direction: $direction
-    search: $searchInput
+    search: $searchParams
+    after: $after
     first: 10
   ) {
     edges {
@@ -17,6 +23,10 @@ query LineItems($orderBy: String, $direction: String, $searchInput: Search) {
           name
         }
       }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
     }
   }
 }

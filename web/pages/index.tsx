@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { invert } from 'lodash'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import Tabs from 'react-bootstrap/Tabs'
@@ -44,13 +45,7 @@ const transArgs = {
   adjustments: 'adjustments',
 }
 
-const reversedTransArgs = {
-  name: 'title',
-  'campaigns.name': 'campaign',
-  booked_amount: 'bookedAmount',
-  actual_amount: 'actualAmount',
-  adjustments: 'adjustments',
-}
+const reversedTransArgs = invert(transArgs)
 
 const TablePlaceholder = (props) => (
   <LoadingPlaceholder
@@ -70,13 +65,14 @@ const TablePlaceholder = (props) => (
 export default function Home({ query }) {
   const { field, value, orderBy, direction } = query
   const router = useRouter()
+  const [refreshing, setRefreshing] = useState<boolean>(false)
   const [formInput, setFormInput] = useState<string>('')
   const [curTab, setTab] = useState<string>('campaign')
 
   let queryVars: LineItemsQueryVariables = {}
 
   if (field && value) {
-    queryVars.searchInput = {
+    queryVars.searchParams = {
       field,
       value,
     }
@@ -86,22 +82,52 @@ export default function Home({ query }) {
     queryVars = { ...queryVars, orderBy, direction }
   }
 
-  const { data, loading } = useLineItemsQuery({
+  const { data, loading: pageLoading, fetchMore, refetch } = useLineItemsQuery({
     variables: queryVars,
-    fetchPolicy: 'no-cache',
   })
 
-  const handleOrderBy = useCallback(
-    ({ orderBy, direction }: OrderByParams) => {
-      router.replace({
-        query: {
-          ...query,
-          orderBy: transArgs[orderBy],
-          direction,
-        },
+  const footerRef = useRef()
+
+  useEffect(() => {
+    if (!pageLoading) {
+      const observer = new IntersectionObserver((entries) => {
+        if (
+          entries[0].intersectionRatio === 1 &&
+          data.lineItems.pageInfo.hasNextPage
+        ) {
+          fetchMore({
+            variables: {
+              after: data.lineItems.pageInfo.endCursor,
+            },
+          })
+        }
       })
+      observer.observe(footerRef.current)
+      return () => {
+        observer.disconnect()
+      }
+    }
+  }, [data])
+
+  const handleOrderBy = useCallback(
+    async ({ orderBy, direction }: OrderByParams) => {
+      const nextQuery = {
+        ...router.query,
+        orderBy: transArgs[orderBy],
+        direction,
+      }
+      router.replace(
+        {
+          query: nextQuery,
+        },
+        undefined,
+        { shallow: true }
+      )
+      setRefreshing(true)
+      await refetch(nextQuery)
+      setRefreshing(false)
     },
-    [orderBy, direction]
+    [router.query]
   )
 
   const rows = data?.lineItems.edges.map(
@@ -119,12 +145,20 @@ export default function Home({ query }) {
 
   const form = (
     <Form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault()
-        router.push({
-          pathname: '/',
-          query: { field: curTab, value: formInput },
-        })
+        const searchParams = { field: curTab, value: formInput }
+        router.push(
+          {
+            pathname: '/',
+            query: searchParams,
+          },
+          undefined,
+          { shallow: true }
+        )
+        setRefreshing(true)
+        await refetch({ searchParams })
+        setRefreshing(false)
       }}
     >
       <FormRow>
@@ -164,11 +198,12 @@ export default function Home({ query }) {
           'adjustments',
         ]}
         rows={rows}
-        loading={loading}
-        loadingPlaceholder={TablePlaceholder}
+        loading={!data || refreshing}
+        loadingPlaceholder={<TablePlaceholder uniqueKey="table-placeholder" />}
         orderBy={{ orderBy: reversedTransArgs[orderBy], direction }}
         onOrderBy={handleOrderBy}
       ></StyledTable>
+      <footer ref={footerRef}></footer>
     </Container>
   )
 }
