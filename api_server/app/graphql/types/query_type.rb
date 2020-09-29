@@ -19,9 +19,9 @@ module Types
       if search
         case search.field
         when 'line_item'
-          records = LineItem.search(query: {match: {'name' => search.value}}).records
+          records = LineItem.search(size: LineItem.count, query: {match: {'name' => {query: search.value, operator: 'and'}}}).records
         when 'campaign'
-          records = LineItem.search(query: {match: {'campaign.name' => search.value}}).records
+          records = LineItem.search(size: LineItem.count, query: {match: {'campaign.name' => {query: search.value, operator: 'and'}}}).records
         else
           records = LineItem
         end
@@ -29,7 +29,7 @@ module Types
         records = LineItem
       end
       if (['name', 'booked_amount', 'actual_amount', 'adjustments', 'campaigns.name'].include? orderBy) && (['ASC', 'DESC'].include? direction)
-        return records.includes(:campaign).order("#{orderBy} #{direction}")
+        return records.includes(:campaign).order("#{orderBy} #{direction}, line_items.id ASC")
       else
         return records.includes(:campaign)
       end
