@@ -147,22 +147,25 @@ export default function Home({ query }) {
     <Form
       onSubmit={async (e) => {
         e.preventDefault()
-        const searchParams = { field: curTab, value: formInput }
-        router.push(
-          {
-            pathname: '/',
-            query: searchParams,
-          },
-          undefined,
-          { shallow: true }
-        )
-        setRefreshing(true)
-        await refetch({ searchParams })
-        setRefreshing(false)
+        if (formInput) {
+          const searchParams = { field: curTab, value: formInput }
+          router.push(
+            {
+              pathname: '/',
+              query: searchParams,
+            },
+            undefined,
+            { shallow: true }
+          )
+          setRefreshing(true)
+          await refetch({ searchParams })
+          setRefreshing(false)
+        }
       }}
     >
       <FormRow>
         <Form.Control
+          required
           value={formInput}
           onChange={handleFormChange}
         ></Form.Control>
