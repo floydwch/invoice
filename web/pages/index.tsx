@@ -90,8 +90,8 @@ export default function Home() {
   }
   const [refreshing, setRefreshing] = useState<boolean>(false)
   const [fetchingMore, setFetchingMore] = useState<boolean>(false)
-  const [formInput, setFormInput] = useState<string>('')
-  const [curTab, setTab] = useState<string>('campaign')
+  const [formInput, setFormInput] = useState<string>(search.value || '')
+  const [curTab, setTab] = useState<string>(search.field || 'campaign')
 
   let queryVars: LineItemsQueryVariables = {}
 
