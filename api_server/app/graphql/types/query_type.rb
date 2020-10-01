@@ -21,8 +21,10 @@ module Types
         case search.field
         when 'line_item'
           records = LineItem.search(size: LineItem.count, query: {match: {'name' => {query: search.value, operator: 'and'}}}).records
-        when 'campaign'
+        when 'campaign.name'
           records = LineItem.search(size: LineItem.count, query: {match: {'campaign.name' => {query: search.value, operator: 'and'}}}).records
+        when 'campaign'
+          records = LineItem.where(campaign: search.value)
         else
           records = LineItem
         end

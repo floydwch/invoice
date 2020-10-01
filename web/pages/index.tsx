@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { invert } from 'lodash'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import styled from 'styled-components'
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
@@ -68,6 +69,16 @@ const InfoBar = styled.div`
   padding: 0 8px;
 `
 
+const StyledAnchor = styled.a`
+  color: #007bff;
+  transition: color 0.23s linear;
+  cursor: pointer;
+
+  &:hover {
+    color: #16a085;
+  }
+`
+
 const transArgs = {
   title: 'name',
   campaign: 'campaigns.name',
@@ -88,10 +99,17 @@ export default function Home() {
     field: router.query.orderByField as string,
     direction: router.query.orderByDirection as string,
   }
+
   const [refreshing, setRefreshing] = useState<boolean>(false)
   const [fetchingMore, setFetchingMore] = useState<boolean>(false)
-  const [formInput, setFormInput] = useState<string>(search.value || '')
-  const [curTab, setTab] = useState<string>(search.field || 'campaign')
+  const [formInput, setFormInput] = useState<string>(
+    ['campaign.name', 'line_item'].includes(search.field) ? search.value : ''
+  )
+  const [curTab, setTab] = useState<string>(
+    ['campaign.name', 'line_item'].includes(search.field)
+      ? search.field
+      : 'campaign.name'
+  )
 
   let queryVars: LineItemsQueryVariables = {}
 
@@ -197,7 +215,15 @@ export default function Home() {
       node: { id, name, bookedAmount, actualAmount, adjustments, campaign },
     }) => ({
       id: `${id}`,
-      columns: [name, campaign.name, bookedAmount, actualAmount, adjustments],
+      columns: [
+        name,
+        <Link href={`?searchField=campaign&searchValue=${campaign.id}`} shallow>
+          <StyledAnchor>{campaign.name}</StyledAnchor>
+        </Link>,
+        bookedAmount,
+        actualAmount,
+        adjustments,
+      ],
     })
   )
 
@@ -246,6 +272,14 @@ export default function Home() {
     setTab(key)
   }, [])
 
+  const labelMap = useMemo(() => {
+    return {
+      line_item: 'Search',
+      'campaign.name': 'Search',
+      campaign: 'Campaign',
+    }
+  }, [])
+
   return (
     <Container>
       <StyledTabs
@@ -253,7 +287,7 @@ export default function Home() {
         transition={false}
         onSelect={handleTabSelect}
       >
-        <Tab eventKey="campaign" title="By campaign">
+        <Tab eventKey="campaign.name" title="By campaign">
           {form}
         </Tab>
         <Tab eventKey="line_item" title="By line-item">
@@ -262,7 +296,7 @@ export default function Home() {
       </StyledTabs>
       <InfoBar>
         {isFilteredBySearch && (
-          <Label onCancel={handleCloseFilter}>Search</Label>
+          <Label onCancel={handleCloseFilter}>{labelMap[search.field]}</Label>
         )}
       </InfoBar>
       <TableWrapper

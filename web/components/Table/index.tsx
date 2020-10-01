@@ -111,7 +111,7 @@ function CaretToolbar({ checked, direction, onChange }: CaretToolbarProps) {
 
 export interface RowInterface {
   id: string
-  columns: Array<string | number>
+  columns: Array<string | number | ReactNode>
 }
 
 export interface OrderBy {
