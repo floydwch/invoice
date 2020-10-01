@@ -193,6 +193,10 @@ export default function Home() {
     }
   }, [])
 
+  const handleTabSelect = useCallback((key) => {
+    setTab(key)
+  }, [])
+
   const handleOrderBy = useCallback(
     async ({ field, direction }: OrderBy) => {
       router.replace(
@@ -208,23 +212,6 @@ export default function Home() {
       )
     },
     [router.query]
-  )
-
-  const rows = data?.lineItems.edges.map(
-    ({
-      node: { id, name, bookedAmount, actualAmount, adjustments, campaign },
-    }) => ({
-      id: `${id}`,
-      columns: [
-        name,
-        <Link href={`?searchField=campaign&searchValue=${campaign.id}`} shallow>
-          <StyledAnchor>{campaign.name}</StyledAnchor>
-        </Link>,
-        bookedAmount,
-        actualAmount,
-        adjustments,
-      ],
-    })
   )
 
   const handleFormChange = useCallback((e) => {
@@ -268,10 +255,6 @@ export default function Home() {
     </Form>
   )
 
-  const handleTabSelect = useCallback((key) => {
-    setTab(key)
-  }, [])
-
   const labelMap = useMemo(() => {
     return {
       line_item: 'Search',
@@ -279,6 +262,23 @@ export default function Home() {
       campaign: 'Campaign',
     }
   }, [])
+
+  const rows = data?.lineItems.edges.map(
+    ({
+      node: { id, name, bookedAmount, actualAmount, adjustments, campaign },
+    }) => ({
+      id: `${id}`,
+      columns: [
+        name,
+        <Link href={`?searchField=campaign&searchValue=${campaign.id}`} shallow>
+          <StyledAnchor>{campaign.name}</StyledAnchor>
+        </Link>,
+        bookedAmount,
+        actualAmount,
+        adjustments,
+      ],
+    })
+  )
 
   return (
     <Container>
