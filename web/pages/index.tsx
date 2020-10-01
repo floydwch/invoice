@@ -13,6 +13,7 @@ import {
   LineItemsQueryVariables,
 } from '../queries/lineItems.graphql'
 import Table, { OrderBy } from '../components/Table'
+import Label from '../components/Label'
 
 const Container = styled.div`
   display: flex;
@@ -60,6 +61,13 @@ const TablePlaceholder = (props) => (
   </LoadingPlaceholder>
 )
 
+const InfoBar = styled.div`
+  width: 100%;
+  height: 24px;
+  margin-bottom: 16px;
+  padding: 0 8px;
+`
+
 const transArgs = {
   title: 'name',
   campaign: 'campaigns.name',
@@ -87,7 +95,9 @@ export default function Home() {
 
   let queryVars: LineItemsQueryVariables = {}
 
-  if (search.field && search.value) {
+  const isFilteredBySearch = search.field && search.value
+
+  if (isFilteredBySearch) {
     queryVars.search = search
   }
 
@@ -195,6 +205,16 @@ export default function Home() {
     setFormInput(e.target.value)
   }, [])
 
+  const handleCloseFilter = useCallback(() => {
+    router.push(
+      {
+        query: {},
+      },
+      undefined,
+      { shallow: true }
+    )
+  }, [])
+
   const form = (
     <Form
       onSubmit={async (e) => {
@@ -240,6 +260,11 @@ export default function Home() {
           {form}
         </Tab>
       </StyledTabs>
+      <InfoBar>
+        {isFilteredBySearch && (
+          <Label onCancel={handleCloseFilter}>Search</Label>
+        )}
+      </InfoBar>
       <TableWrapper
         key={router.query.value as string}
         style={{ height: rows?.length ? 'auto' : '1px' }}
