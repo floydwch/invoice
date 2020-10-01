@@ -1,13 +1,15 @@
 query LineItems(
-  $orderBy: String
-  $direction: String
-  $searchParams: Search
+  # $orderBy: String
+  # $direction: String
+  $search: Search
+  $orderBy: OrderBy
   $after: String
 ) {
   lineItems(
+    # orderBy: $orderBy
+    # direction: $direction
     orderBy: $orderBy
-    direction: $direction
-    search: $searchParams
+    search: $search
     after: $after
     first: 10
   ) {

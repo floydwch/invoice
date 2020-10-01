@@ -2,9 +2,6 @@ import { HTMLAttributes, ReactNode, useEffect, useState } from 'react'
 import styled, { createGlobalStyle } from 'styled-components'
 import BSTable from 'react-bootstrap/Table'
 
-import AbstractRadioGroup from '../AbstractRadioGroup'
-import AbstractRadio from '../AbstractRadio'
-
 const GlobalStyle = createGlobalStyle`
   .table-responsive {
     min-height: 100%;
@@ -63,7 +60,6 @@ function useCaretDirection(
     onChange(nextDirection)
   }
   return {
-    direction: curDirection,
     toggle: enhancedToggle,
   }
 }
@@ -84,10 +80,7 @@ interface CaretToolbarProps {
 }
 
 function CaretToolbar({ checked, direction, onChange }: CaretToolbarProps) {
-  const { direction: curDirection, toggle } = useCaretDirection(
-    onChange,
-    direction
-  )
+  const { toggle } = useCaretDirection(onChange, direction)
 
   useEffect(() => {
     if (!checked) {
@@ -98,16 +91,16 @@ function CaretToolbar({ checked, direction, onChange }: CaretToolbarProps) {
   return (
     <CaretToolbarContainer>
       <Caret
-        activated={checked && curDirection === 'up'}
-        onClickCapture={(e) => {
+        activated={checked && direction === 'up'}
+        onClick={(e) => {
           e.stopPropagation()
           toggle('up')
         }}
       ></Caret>
       <Caret
-        activated={checked && curDirection === 'down'}
+        activated={checked && direction === 'down'}
         direction="down"
-        onClickCapture={(e) => {
+        onClick={(e) => {
           e.stopPropagation()
           toggle('down')
         }}
@@ -121,8 +114,8 @@ export interface RowInterface {
   columns: Array<string | number>
 }
 
-export interface OrderByParams {
-  orderBy?: string
+export interface OrderBy {
+  field?: string
   direction?: string
 }
 
@@ -132,8 +125,8 @@ interface TableProps {
   emptyPlaceholder?: ReactNode
   loading?: boolean
   loadingPlaceholder?: ReactNode
-  orderBy?: OrderByParams
-  onOrderBy?: (params: OrderByParams) => void
+  orderBy?: OrderBy
+  onOrderBy?: (params: OrderBy) => void
 }
 
 export default function Table({
@@ -147,10 +140,8 @@ export default function Table({
   orderBy,
   onOrderBy,
 }: TableProps & HTMLAttributes<HTMLTableElement>) {
-  const [curOrderBy, setOrderBy] = useState<OrderByParams>(orderBy)
-
   const headerElements = headers.map((title, i) => {
-    const checked = title === curOrderBy.orderBy
+    const checked = title === orderBy.field
 
     if (checked) {
       var direction = { ASC: 'up', DESC: 'down' }[orderBy.direction]
@@ -160,52 +151,33 @@ export default function Table({
       <th key={i}>
         {title}
         {orderBy && onOrderBy && (
-          <AbstractRadio value={title}>
-            <CaretToolbar
-              onChange={(caretDirection) => {
-                const direction = {
-                  up: 'ASC',
-                  down: 'DESC',
-                }[caretDirection]
+          <CaretToolbar
+            checked={checked}
+            direction={direction}
+            onChange={(caretDirection) => {
+              const direction = {
+                up: 'ASC',
+                down: 'DESC',
+              }[caretDirection]
 
-                if (
-                  title !== curOrderBy.orderBy ||
-                  direction !== curOrderBy.direction
-                ) {
-                  const nextState = {
-                    orderBy: title,
-                    direction,
-                  }
-                  setOrderBy(nextState)
-                  onOrderBy(nextState)
-                }
-              }}
-              checked={checked}
-              direction={direction}
-            />
-          </AbstractRadio>
+              if (title !== orderBy.field || direction !== orderBy.direction) {
+                onOrderBy({
+                  field: title,
+                  direction,
+                })
+              }
+            }}
+          />
         )}
       </th>
     )
   })
 
-  if (orderBy && onOrderBy) {
-    var thead = (
-      <thead>
-        <tr>
-          <AbstractRadioGroup value={orderBy.orderBy}>
-            {headerElements}
-          </AbstractRadioGroup>
-        </tr>
-      </thead>
-    )
-  } else {
-    var thead = (
-      <thead>
-        <tr>{headerElements}</tr>
-      </thead>
-    )
-  }
+  var thead = (
+    <thead>
+      <tr>{headerElements}</tr>
+    </thead>
+  )
 
   if (!loading) {
     if (rows.length) {

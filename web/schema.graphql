@@ -84,6 +84,11 @@ type Mutation {
   updateAdjustments(input: UpdateAdjustmentsInput!): LineItem
 }
 
+input OrderBy {
+  direction: String!
+  field: String!
+}
+
 """
 Information about pagination in a connection.
 """
@@ -128,7 +133,6 @@ type Query {
     Returns the elements in the list that come before the specified cursor.
     """
     before: String
-    direction: String
 
     """
     Returns the first _n_ elements from the list.
@@ -139,7 +143,7 @@ type Query {
     Returns the last _n_ elements from the list.
     """
     last: Int
-    orderBy: String
+    orderBy: OrderBy
     search: Search
   ): LineItemConnection!
 

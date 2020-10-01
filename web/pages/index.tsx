@@ -12,7 +12,7 @@ import {
   useLineItemsQuery,
   LineItemsQueryVariables,
 } from '../queries/lineItems.graphql'
-import Table, { OrderByParams } from '../components/Table'
+import Table, { OrderBy } from '../components/Table'
 
 const Container = styled.div`
   display: flex;
@@ -70,9 +70,16 @@ const TablePlaceholder = (props) => (
   </LoadingPlaceholder>
 )
 
-export default function Home({ query }) {
-  const { field, value, orderBy, direction } = query
+export default function Home() {
   const router = useRouter()
+  const search = {
+    field: router.query.searchField as string,
+    value: router.query.searchValue as string,
+  }
+  const orderBy = {
+    field: router.query.orderByField as string,
+    direction: router.query.orderByDirection as string,
+  }
   const [refreshing, setRefreshing] = useState<boolean>(false)
   const [fetchingMore, setFetchingMore] = useState<boolean>(false)
   const [formInput, setFormInput] = useState<string>('')
@@ -80,15 +87,12 @@ export default function Home({ query }) {
 
   let queryVars: LineItemsQueryVariables = {}
 
-  if (field && value) {
-    queryVars.searchParams = {
-      field,
-      value,
-    }
+  if (search.field && search.value) {
+    queryVars.search = search
   }
 
-  if (orderBy && direction) {
-    queryVars = { ...queryVars, orderBy, direction }
+  if (orderBy.field && orderBy.direction) {
+    queryVars.orderBy = orderBy
   }
 
   const { data, loading: pageLoading, fetchMore, refetch } = useLineItemsQuery({
@@ -123,16 +127,34 @@ export default function Home({ query }) {
 
   useEffect(() => {
     const handler = async () => {
-      const params = new URLSearchParams(location.search)
+      const {
+        searchField,
+        searchValue,
+        orderByField,
+        orderByDirection,
+      } = Object.fromEntries(new URLSearchParams(location.search))
+
+      if (searchField && searchValue) {
+        var search = {
+          field: searchField,
+          value: searchValue,
+        }
+      }
+
+      if (orderByField && orderByDirection) {
+        var orderBy = {
+          field: orderByField,
+          direction: orderByDirection,
+        }
+      }
+
       setRefreshing(true)
+
       await refetch({
-        searchParams: {
-          field: params.get('field'),
-          value: params.get('value'),
-        },
-        orderBy: params.get('orderBy'),
-        direction: params.get('direction'),
+        search,
+        orderBy,
       })
+
       setRefreshing(false)
     }
 
@@ -144,15 +166,14 @@ export default function Home({ query }) {
   }, [])
 
   const handleOrderBy = useCallback(
-    async ({ orderBy, direction }: OrderByParams) => {
-      const nextQuery = {
-        ...router.query,
-        orderBy: transArgs[orderBy],
-        direction,
-      }
+    async ({ field, direction }: OrderBy) => {
       router.replace(
         {
-          query: nextQuery,
+          query: {
+            ...router.query,
+            orderByField: transArgs[field],
+            orderByDirection: direction,
+          },
         },
         undefined,
         { shallow: true }
@@ -179,11 +200,10 @@ export default function Home({ query }) {
       onSubmit={async (e) => {
         e.preventDefault()
         if (formInput) {
-          const searchParams = { field: curTab, value: formInput }
           router.push(
             {
               pathname: '/',
-              query: searchParams,
+              query: { searchField: curTab, searchValue: formInput },
             },
             undefined,
             { shallow: true }
@@ -220,7 +240,10 @@ export default function Home({ query }) {
           {form}
         </Tab>
       </StyledTabs>
-      <TableWrapper style={{ height: rows?.length ? 'auto' : '1px' }}>
+      <TableWrapper
+        key={router.query.value as string}
+        style={{ height: rows?.length ? 'auto' : '1px' }}
+      >
         <StyledTable
           headers={[
             'title',
@@ -235,7 +258,10 @@ export default function Home({ query }) {
           loadingPlaceholder={
             <TablePlaceholder uniqueKey="table-placeholder" />
           }
-          orderBy={{ orderBy: reversedTransArgs[orderBy], direction }}
+          orderBy={{
+            field: reversedTransArgs[orderBy.field],
+            direction: orderBy.direction,
+          }}
           onOrderBy={handleOrderBy}
         ></StyledTable>
       </TableWrapper>
