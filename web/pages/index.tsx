@@ -19,7 +19,7 @@ import Label from '../components/Label'
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  max-width: 960px;
+  max-width: 1280px;
   min-height: 100vh;
   margin: 0 auto;
   padding: 16px;
@@ -39,7 +39,7 @@ const FormRow = styled.div`
 `
 
 const StyledTable = styled(Table)`
-  min-width: 900px;
+  min-width: 1024px;
   flex-grow: 1;
 `
 
@@ -85,6 +85,7 @@ const transArgs = {
   bookedAmount: 'booked_amount',
   actualAmount: 'actual_amount',
   adjustments: 'adjustments',
+  billableAmount: 'billable_amount',
 }
 
 const reversedTransArgs = invert(transArgs)
@@ -263,21 +264,29 @@ export default function Home() {
     }
   }, [])
 
-  const rows = data?.lineItems.edges.map(
-    ({
-      node: { id, name, bookedAmount, actualAmount, adjustments, campaign },
-    }) => ({
-      id: `${id}`,
-      columns: [
-        name,
-        <Link href={`?searchField=campaign&searchValue=${campaign.id}`} shallow>
-          <StyledAnchor>{campaign.name}</StyledAnchor>
-        </Link>,
-        bookedAmount,
-        actualAmount,
-        adjustments,
-      ],
-    })
+  const rows = useMemo(
+    () =>
+      data?.lineItems.edges.map(
+        ({
+          node: { id, name, bookedAmount, actualAmount, adjustments, campaign },
+        }) => ({
+          id: `${id}`,
+          columns: [
+            name,
+            <Link
+              href={`?searchField=campaign&searchValue=${campaign.id}`}
+              shallow
+            >
+              <StyledAnchor>{campaign.name}</StyledAnchor>
+            </Link>,
+            bookedAmount,
+            actualAmount,
+            adjustments,
+            actualAmount + adjustments,
+          ],
+        })
+      ),
+    [data]
   )
 
   return (
@@ -310,6 +319,7 @@ export default function Home() {
             'bookedAmount',
             'actualAmount',
             'adjustments',
+            'billableAmount',
           ]}
           rows={rows}
           emptyPlaceholder={<div>No results.</div>}

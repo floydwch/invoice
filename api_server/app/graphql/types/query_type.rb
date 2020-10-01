@@ -31,10 +31,10 @@ module Types
       else
         records = LineItem
       end
-      if orderBy
-        if (['name', 'booked_amount', 'actual_amount', 'adjustments', 'campaigns.name'].include? orderBy.field) && (['ASC', 'DESC'].include? orderBy.direction)
-          return records.includes(:campaign).order("#{orderBy.field} #{orderBy.direction}, line_items.id ASC")
-        end
+      if orderBy && (['name', 'booked_amount', 'actual_amount', 'adjustments', 'campaigns.name'].include? orderBy.field) && (['ASC', 'DESC'].include? orderBy.direction)
+        return records.includes(:campaign).order("#{orderBy.field} #{orderBy.direction}, line_items.id ASC")
+      elsif orderBy && orderBy.field == 'billable_amount' && (['ASC', 'DESC'].include? orderBy.direction)
+        return records.includes(:campaign).order("actual_amount + adjustments #{orderBy.direction}, line_items.id ASC")
       else
         return records.includes(:campaign)
       end
