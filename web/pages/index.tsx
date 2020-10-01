@@ -45,16 +45,6 @@ const TableWrapper = styled.div`
   flex-grow: 1;
 `
 
-const transArgs = {
-  title: 'name',
-  campaign: 'campaigns.name',
-  bookedAmount: 'booked_amount',
-  actualAmount: 'actual_amount',
-  adjustments: 'adjustments',
-}
-
-const reversedTransArgs = invert(transArgs)
-
 const TablePlaceholder = (props) => (
   <LoadingPlaceholder
     viewBox="0 0 240 120"
@@ -69,6 +59,16 @@ const TablePlaceholder = (props) => (
     <circle cx="180" cy="60" r="8" />
   </LoadingPlaceholder>
 )
+
+const transArgs = {
+  title: 'name',
+  campaign: 'campaigns.name',
+  bookedAmount: 'booked_amount',
+  actualAmount: 'actual_amount',
+  adjustments: 'adjustments',
+}
+
+const reversedTransArgs = invert(transArgs)
 
 export default function Home() {
   const router = useRouter()
