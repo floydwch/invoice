@@ -11,7 +11,7 @@ module Types
       "Hello World!"
     end
 
-    field :lineItems, LineItemType.connection_type, null: false, description: 'All line-items' do
+    field :lineItems, LineItemConnectionType, null: false, connection: true, description: 'All line-items' do
       argument :orderBy, Types::OrderByType, required: false
       argument :search, Types::SearchType, required: false
     end

@@ -63,10 +63,16 @@ const TablePlaceholder = (props) => (
 )
 
 const InfoBar = styled.div`
+  display: flex;
+  flex-direction: row;
   width: 100%;
   height: 24px;
   margin-bottom: 16px;
   padding: 0 8px;
+`
+
+const Total = styled.div`
+  margin-left: auto;
 `
 
 const StyledAnchor = styled.a`
@@ -289,6 +295,8 @@ export default function Home() {
     [data]
   )
 
+  const total = useMemo(() => data?.lineItems.total, [data])
+
   return (
     <Container>
       <StyledTabs
@@ -307,6 +315,7 @@ export default function Home() {
         {isFilteredBySearch && (
           <Label onCancel={handleCloseFilter}>{labelMap[search.field]}</Label>
         )}
+        <Total>Total: {total}</Total>
       </InfoBar>
       <TableWrapper
         key={router.query.value as string}
