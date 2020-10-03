@@ -1,18 +1,5 @@
-query LineItems(
-  # $orderBy: String
-  # $direction: String
-  $search: Search
-  $orderBy: OrderBy
-  $after: String
-) {
-  lineItems(
-    # orderBy: $orderBy
-    # direction: $direction
-    orderBy: $orderBy
-    search: $search
-    after: $after
-    first: 10
-  ) {
+query LineItems($search: Search, $orderBy: OrderBy, $after: String) {
+  lineItems(orderBy: $orderBy, search: $search, after: $after, first: 10) {
     total
     edges {
       node {
