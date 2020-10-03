@@ -3,11 +3,12 @@ module Types
     field :id, Int, null: false
     field :created_at, GraphQL::Types::ISO8601DateTime, null: false
     field :updated_at, GraphQL::Types::ISO8601DateTime, null: false
-    field :name, String, null: true
-    field :booked_amount, Float, null: true
-    field :actual_amount, Float, null: true
-    field :adjustments, Float, null: true
-    field :campaign, Types::CampaignType, null: true
+    field :name, String, null: false
+    field :booked_amount, Float, null: false
+    field :actual_amount, Float, null: false
+    field :adjustments, Float, null: false
+    field :campaign, Types::CampaignType, null: false
+    field :reviewed, Boolean, null: false
   end
 
   class LineItemEdgeType < GraphQL::Types::Relay::BaseEdge
