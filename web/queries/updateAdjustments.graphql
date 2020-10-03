@@ -1,0 +1,6 @@
+mutation UpdateAdjustments($input: UpdateAdjustmentsInput!) {
+  updateAdjustments(input: $input) {
+    id
+    adjustments
+  }
+}

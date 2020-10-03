@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { invert } from 'lodash'
+import { invert, debounce } from 'lodash'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import styled from 'styled-components'
@@ -12,7 +12,9 @@ import LoadingPlaceholder from 'react-content-loader'
 import {
   useLineItemsQuery,
   LineItemsQueryVariables,
+  LineItemsDocument,
 } from '../queries/lineItems.graphql'
+import { useUpdateAdjustmentsMutation } from '../queries/updateAdjustments.graphql'
 import Table, { OrderBy } from '../components/Table'
 import Label from '../components/Label'
 
@@ -85,6 +87,11 @@ const StyledAnchor = styled.a`
   }
 `
 
+const CellInput = styled.input`
+  padding: 0;
+  border: 0;
+`
+
 const transArgs = {
   title: 'name',
   campaign: 'campaigns.name',
@@ -130,9 +137,17 @@ export default function Home() {
     queryVars.orderBy = orderBy
   }
 
-  const { data, loading: pageLoading, fetchMore, refetch } = useLineItemsQuery({
+  const {
+    data,
+    loading: pageLoading,
+    fetchMore,
+    refetch,
+    client,
+  } = useLineItemsQuery({
     variables: queryVars,
   })
+
+  const [updateAdjustments] = useUpdateAdjustmentsMutation()
 
   const footerRef = useRef()
 
@@ -275,22 +290,56 @@ export default function Home() {
       data?.lineItems.edges.map(
         ({
           node: { id, name, bookedAmount, actualAmount, adjustments, campaign },
-        }) => ({
-          id: `${id}`,
-          columns: [
-            name,
-            <Link
-              href={`?searchField=campaign&searchValue=${campaign.id}`}
-              shallow
-            >
-              <StyledAnchor>{campaign.name}</StyledAnchor>
-            </Link>,
-            bookedAmount,
-            actualAmount,
-            adjustments,
-            actualAmount + adjustments,
-          ],
-        })
+        }) => {
+          const adjustmentsHandler = debounce(async (e) => {
+            const newAdjustments = Number.parseFloat(e.target.value)
+            const diff = newAdjustments - adjustments
+
+            client.writeQuery({
+              query: LineItemsDocument,
+              data: {
+                ...data,
+                lineItems: {
+                  ...data.lineItems,
+                  total: data.lineItems.total + diff,
+                },
+              },
+            })
+
+            await updateAdjustments({
+              variables: {
+                input: {
+                  id: `${id}`,
+                  value: newAdjustments,
+                },
+              },
+            })
+          }, 400)
+
+          return {
+            id: `${id}`,
+            columns: [
+              name,
+              <Link
+                href={`?searchField=campaign&searchValue=${campaign.id}`}
+                shallow
+              >
+                <StyledAnchor>{campaign.name}</StyledAnchor>
+              </Link>,
+              bookedAmount,
+              actualAmount,
+              <CellInput
+                type="number"
+                defaultValue={adjustments}
+                onChange={(e) => {
+                  e.persist()
+                  adjustmentsHandler(e)
+                }}
+              ></CellInput>,
+              actualAmount + adjustments,
+            ],
+          }
+        }
       ),
     [data]
   )
