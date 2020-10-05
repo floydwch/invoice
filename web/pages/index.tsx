@@ -302,8 +302,8 @@ export default function Home() {
             campaign,
           },
         }) => {
-          const adjustmentsHandler = debounce(async (e) => {
-            const newAdjustments = Number.parseFloat(e.target.value)
+          const adjustmentsHandler = debounce(async (value) => {
+            const newAdjustments = Number.parseFloat(value)
             const diff = newAdjustments - adjustments
 
             client.writeQuery({
@@ -334,8 +334,7 @@ export default function Home() {
               type="number"
               defaultValue={adjustments}
               onChange={(e) => {
-                e.persist()
-                adjustmentsHandler(e)
+                adjustmentsHandler(e.target.value || 0)
               }}
             ></CellInput>
           )
