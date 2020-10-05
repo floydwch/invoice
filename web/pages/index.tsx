@@ -220,7 +220,15 @@ export default function Home() {
         orderByDirection,
       } = Object.fromEntries(new URLSearchParams(location.search))
 
-      if (searchField && searchValue) {
+      if (campaign !== undefined) {
+        var mode = 'campaign'
+      } else if (searchField && searchValue) {
+        var mode = 'search'
+      } else {
+        var mode = 'all'
+      }
+
+      if (mode === 'search') {
         var search = {
           field: searchField,
           value: searchValue,
