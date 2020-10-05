@@ -1,0 +1,6 @@
+mutation ReviewLineItem($input: ReviewLineItemInput!) {
+  reviewLineItem(input: $input) {
+    id
+    reviewed
+  }
+}

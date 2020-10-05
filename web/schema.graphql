@@ -1,7 +1,8 @@
 type Campaign {
   createdAt: ISO8601DateTime!
   id: ID!
-  name: String
+  name: String!
+  reviewed: Boolean!
   updatedAt: ISO8601DateTime!
 }
 
@@ -28,13 +29,14 @@ An ISO 8601-encoded datetime
 scalar ISO8601DateTime
 
 type LineItem {
-  actualAmount: Float
-  adjustments: Float
-  bookedAmount: Float
-  campaign: Campaign
+  actualAmount: Float!
+  adjustments: Float!
+  bookedAmount: Float!
+  campaign: Campaign!
   createdAt: ISO8601DateTime!
-  id: Int!
-  name: String
+  id: ID!
+  name: String!
+  reviewed: Boolean!
   updatedAt: ISO8601DateTime!
 }
 
@@ -118,6 +120,11 @@ type PageInfo {
 
 type Query {
   """
+  Get campaign by id
+  """
+  campaign(id: ID!): Campaign!
+
+  """
   Get exportation by token
   """
   exportation(token: String!): Exportation!
@@ -135,6 +142,7 @@ type Query {
     Returns the elements in the list that come before the specified cursor.
     """
     before: String
+    campaign: ID
 
     """
     Returns the first _n_ elements from the list.
@@ -163,7 +171,7 @@ input ReviewCampaignInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
-  id: Int!
+  id: ID!
   revoke: Boolean
 }
 
@@ -175,7 +183,7 @@ input ReviewLineItemInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
-  id: Int!
+  id: ID!
   revoke: Boolean
 }
 

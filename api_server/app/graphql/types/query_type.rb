@@ -13,18 +13,19 @@ module Types
 
     field :lineItems, LineItemConnectionType, null: false, connection: true, description: 'All line-items' do
       argument :orderBy, Types::OrderByType, required: false
+      argument :campaign, ID, required: false
       argument :search, Types::SearchType, required: false
     end
 
-    def lineItems(orderBy: nil, search: nil)
-      if search
+    def lineItems(orderBy: nil, campaign: nil, search: nil)
+      if campaign
+        records = LineItem.where(campaign: campaign)
+      elsif search
         case search.field
         when 'line_item'
           records = LineItem.search(size: LineItem.count, query: {match: {'name' => {query: search.value, operator: 'and'}}}).records
         when 'campaign.name'
           records = LineItem.search(size: LineItem.count, query: {match: {'campaign.name' => {query: search.value, operator: 'and'}}}).records
-        when 'campaign'
-          records = LineItem.where(campaign: search.value)
         else
           records = LineItem
         end
@@ -38,6 +39,14 @@ module Types
       else
         return records.includes(:campaign)
       end
+    end
+
+    field :campaign, CampaignType, null: false, description: 'Get campaign by id' do
+      argument :id, ID, required: true
+    end
+
+    def campaign(id:)
+      Campaign.find(id)
     end
 
     field :exportation, ExportationType, null: false, description: 'Get exportation by token' do

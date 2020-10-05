@@ -8,7 +8,8 @@ module Types
     end
 
     field :updateAdjustments, mutation: Mutations::UpdateAdjustments
-    field :review, mutation: Mutations::Review
+    field :reviewLineItem, mutation: Mutations::ReviewLineItem
+    field :reviewCampaign, mutation: Mutations::ReviewCampaign
     field :export, mutation: Mutations::Export
   end
 end

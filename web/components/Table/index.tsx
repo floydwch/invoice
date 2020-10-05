@@ -10,6 +10,14 @@ const GlobalStyle = createGlobalStyle`
 
 const StyledTable = styled(BSTable)`
   table-layout: fixed;
+
+  th {
+    text-align: center;
+  }
+`
+
+const RowCheckTd = styled.td`
+  text-align: center;
 `
 
 interface CaretProps {
@@ -110,7 +118,8 @@ function CaretToolbar({ checked, direction, onChange }: CaretToolbarProps) {
 }
 
 export interface RowInterface {
-  id: string
+  id: string | number
+  checked?: boolean
   columns: Array<string | number | ReactNode>
 }
 
@@ -121,24 +130,28 @@ export interface OrderBy {
 
 interface TableProps {
   headers: Array<string>
+  withRowCheck?: string
   rows?: Array<RowInterface>
   emptyPlaceholder?: ReactNode
   loading?: boolean
   loadingPlaceholder?: ReactNode
   orderBy?: OrderBy
   onOrderBy?: (params: OrderBy) => void
+  onRowCheckChange?: (id: string | number, checked: boolean) => void
 }
 
 export default function Table({
   className,
   style,
   headers,
+  withRowCheck,
   rows,
   emptyPlaceholder,
   loading,
   loadingPlaceholder,
   orderBy,
   onOrderBy,
+  onRowCheckChange,
 }: TableProps & HTMLAttributes<HTMLTableElement>) {
   const headerElements = headers.map((title, i) => {
     const checked = title === orderBy.field
@@ -173,6 +186,10 @@ export default function Table({
     )
   })
 
+  if (withRowCheck) {
+    headerElements.unshift(<th key="rowCheck">{withRowCheck}</th>)
+  }
+
   var thead = (
     <thead>
       <tr>{headerElements}</tr>
@@ -183,8 +200,21 @@ export default function Table({
     if (rows.length) {
       var tbody = (
         <tbody>
-          {rows.map(({ id, columns }) => (
+          {rows.map(({ id, checked, columns }) => (
             <tr key={id}>
+              {withRowCheck && (
+                <RowCheckTd key="rowCheck">
+                  <input
+                    type="checkbox"
+                    defaultChecked={checked}
+                    onChange={(e) => {
+                      if (onRowCheckChange) {
+                        onRowCheckChange(id, e.target.checked)
+                      }
+                    }}
+                  ></input>
+                </RowCheckTd>
+              )}
               {columns.map((column, i) => (
                 <td key={i}>{column}</td>
               ))}

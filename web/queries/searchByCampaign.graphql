@@ -1,5 +1,5 @@
-query LineItems($search: Search, $orderBy: OrderBy, $after: String) {
-  lineItems(orderBy: $orderBy, search: $search, after: $after, first: 10) {
+query SearchByCampaign($campaign: ID!, $orderBy: OrderBy, $after: String) {
+  lineItems(campaign: $campaign, orderBy: $orderBy, after: $after, first: 10) {
     total
     edges {
       node {
@@ -19,5 +19,10 @@ query LineItems($search: Search, $orderBy: OrderBy, $after: String) {
       endCursor
       hasNextPage
     }
+  }
+  campaign(id: $campaign) {
+    id
+    name
+    # reviewed
   }
 }

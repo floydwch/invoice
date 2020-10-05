@@ -7,9 +7,13 @@ module Mutations
 
     def resolve(input)
       line_item = LineItem.find(input[:id])
-      line_item.adjustments = input[:value]
-      line_item.save!
-      line_item
+      if !line_item.reviewed
+        line_item.adjustments = input[:value]
+        line_item.save!
+        line_item
+      else
+        raise GraphQL::ExecutionError, 'can\'t update a reviewed line_item'
+      end
     end
   end
 end

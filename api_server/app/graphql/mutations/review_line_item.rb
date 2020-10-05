@@ -1,6 +1,6 @@
 module Mutations
   class ReviewLineItem < BaseMutation
-    argument :id, Int, required: true
+    argument :id, ID, required: true
     argument :revoke, Boolean, required: false
     type Types::LineItemType
 

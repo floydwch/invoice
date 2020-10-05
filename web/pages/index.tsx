@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { invert, debounce } from 'lodash'
 import { useRouter } from 'next/router'
+import { useApolloClient } from '@apollo/client'
 import Link from 'next/link'
 import styled from 'styled-components'
 import Tabs from 'react-bootstrap/Tabs'
@@ -14,7 +15,12 @@ import {
   LineItemsQueryVariables,
   LineItemsDocument,
 } from '../queries/lineItems.graphql'
+import {
+  SearchByCampaignQueryVariables,
+  useSearchByCampaignQuery,
+} from '../queries/searchByCampaign.graphql'
 import { useUpdateAdjustmentsMutation } from '../queries/updateAdjustments.graphql'
+import { useReviewLineItemMutation } from '../queries/reviewLineItem.graphql'
 import Table, { OrderBy } from '../components/Table'
 import Label from '../components/Label'
 
@@ -104,7 +110,9 @@ const transArgs = {
 const reversedTransArgs = invert(transArgs)
 
 export default function Home() {
+  const client = useApolloClient()
   const router = useRouter()
+  const campaign = router.query.campaign as string
   const search = {
     field: router.query.searchField as string,
     value: router.query.searchValue as string,
@@ -112,6 +120,14 @@ export default function Home() {
   const orderBy = {
     field: router.query.orderByField as string,
     direction: router.query.orderByDirection as string,
+  }
+
+  if (campaign !== undefined) {
+    var mode = 'campaign'
+  } else if (search.field && search.value) {
+    var mode = 'search'
+  } else {
+    var mode = 'all'
   }
 
   const [refreshing, setRefreshing] = useState<boolean>(false)
@@ -126,28 +142,47 @@ export default function Home() {
   )
 
   let queryVars: LineItemsQueryVariables = {}
+  let searchByCampaignQueryVars: SearchByCampaignQueryVariables = { campaign }
 
-  const isFilteredBySearch = search.field && search.value
-
-  if (isFilteredBySearch) {
+  if (mode == 'search') {
     queryVars.search = search
   }
 
   if (orderBy.field && orderBy.direction) {
     queryVars.orderBy = orderBy
+    searchByCampaignQueryVars.orderBy = orderBy
   }
 
   const {
-    data,
-    loading: pageLoading,
-    fetchMore,
-    refetch,
-    client,
+    data: lineItemQueryResult,
+    loading: lineItemQueryLoading,
+    fetchMore: lineItemFetchMore,
+    refetch: lineItemRefetch,
   } = useLineItemsQuery({
     variables: queryVars,
+    skip: mode === 'campaign',
   })
 
+  const {
+    data: searchByCampaignResult,
+    loading: searchByCampaignQueryLoading,
+    fetchMore: searchByCampaignFetchMore,
+    refetch: searchByCampaignRefetch,
+  } = useSearchByCampaignQuery({
+    variables: searchByCampaignQueryVars,
+    skip: mode !== 'campaign',
+  })
+
+  var data = mode === 'campaign' ? searchByCampaignResult : lineItemQueryResult
+  var pageLoading =
+    mode === 'campaign' ? searchByCampaignQueryLoading : lineItemQueryLoading
+  var fetchMore =
+    mode === 'campaign' ? searchByCampaignFetchMore : lineItemFetchMore
+  var refetch = mode === 'campaign' ? searchByCampaignRefetch : lineItemRefetch
+
   const [updateAdjustments] = useUpdateAdjustmentsMutation()
+
+  const [reviewLineItem] = useReviewLineItemMutation()
 
   const footerRef = useRef()
 
@@ -178,6 +213,7 @@ export default function Home() {
   useEffect(() => {
     const handler = async () => {
       const {
+        campaign,
         searchField,
         searchValue,
         orderByField,
@@ -200,10 +236,17 @@ export default function Home() {
 
       setRefreshing(true)
 
-      await refetch({
-        search,
-        orderBy,
-      })
+      if (mode === 'campaign') {
+        await refetch({
+          campaign,
+          orderBy,
+        })
+      } else {
+        await refetch({
+          search,
+          orderBy,
+        })
+      }
 
       setRefreshing(false)
     }
@@ -277,19 +320,19 @@ export default function Home() {
     </Form>
   )
 
-  const labelMap = useMemo(() => {
-    return {
-      line_item: 'Search',
-      'campaign.name': 'Search',
-      campaign: 'Campaign',
-    }
-  }, [])
-
   const rows = useMemo(
     () =>
       data?.lineItems.edges.map(
         ({
-          node: { id, name, bookedAmount, actualAmount, adjustments, campaign },
+          node: {
+            id,
+            reviewed,
+            name,
+            bookedAmount,
+            actualAmount,
+            adjustments,
+            campaign,
+          },
         }) => {
           const adjustmentsHandler = debounce(async (e) => {
             const newAdjustments = Number.parseFloat(e.target.value)
@@ -309,33 +352,37 @@ export default function Home() {
             await updateAdjustments({
               variables: {
                 input: {
-                  id: `${id}`,
+                  id,
                   value: newAdjustments,
                 },
               },
             })
           }, 400)
 
+          const adjustmentsField = reviewed ? (
+            adjustments
+          ) : (
+            <CellInput
+              type="number"
+              defaultValue={adjustments}
+              onChange={(e) => {
+                e.persist()
+                adjustmentsHandler(e)
+              }}
+            ></CellInput>
+          )
+
           return {
-            id: `${id}`,
+            id,
+            checked: reviewed,
             columns: [
               name,
-              <Link
-                href={`?searchField=campaign&searchValue=${campaign.id}`}
-                shallow
-              >
+              <Link href={`?campaign=${campaign.id}`} shallow>
                 <StyledAnchor>{campaign.name}</StyledAnchor>
               </Link>,
               bookedAmount,
               actualAmount,
-              <CellInput
-                type="number"
-                defaultValue={adjustments}
-                onChange={(e) => {
-                  e.persist()
-                  adjustmentsHandler(e)
-                }}
-              ></CellInput>,
+              adjustmentsField,
               actualAmount + adjustments,
             ],
           }
@@ -344,7 +391,13 @@ export default function Home() {
     [data]
   )
 
-  const total = useMemo(() => data?.lineItems.total, [data])
+  const total = data?.lineItems.total
+
+  if (mode === 'search') {
+    var label = <Label onCancel={handleCloseFilter}>Search</Label>
+  } else if (mode === 'campaign') {
+    var label = <Label onCancel={handleCloseFilter}>Campaign</Label>
+  }
 
   return (
     <Container>
@@ -361,9 +414,7 @@ export default function Home() {
         </Tab>
       </StyledTabs>
       <InfoBar>
-        {isFilteredBySearch && (
-          <Label onCancel={handleCloseFilter}>{labelMap[search.field]}</Label>
-        )}
+        {label}
         <Total>Total: {total}</Total>
       </InfoBar>
       <TableWrapper
@@ -379,6 +430,7 @@ export default function Home() {
             'adjustments',
             'billableAmount',
           ]}
+          withRowCheck="reviewed"
           rows={rows}
           emptyPlaceholder={<div>No results.</div>}
           loading={!data || refreshing}
@@ -390,6 +442,13 @@ export default function Home() {
             direction: orderBy.direction,
           }}
           onOrderBy={handleOrderBy}
+          onRowCheckChange={(id: string, checked) => {
+            if (checked) {
+              reviewLineItem({ variables: { input: { id } } })
+            } else {
+              reviewLineItem({ variables: { input: { id, revoke: true } } })
+            }
+          }}
         ></StyledTable>
       </TableWrapper>
       {fetchingMore && <TablePlaceholder uniqueKey="table-placeholder" />}
