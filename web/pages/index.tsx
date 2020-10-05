@@ -141,15 +141,15 @@ export default function Home() {
       : 'campaign.name'
   )
 
-  let queryVars: LineItemsQueryVariables = {}
+  let lineItemsQueryVars: LineItemsQueryVariables = {}
   let searchByCampaignQueryVars: SearchByCampaignQueryVariables = { campaign }
 
   if (mode == 'search') {
-    queryVars.search = search
+    lineItemsQueryVars.search = search
   }
 
   if (orderBy.field && orderBy.direction) {
-    queryVars.orderBy = orderBy
+    lineItemsQueryVars.orderBy = orderBy
     searchByCampaignQueryVars.orderBy = orderBy
   }
 
@@ -159,7 +159,7 @@ export default function Home() {
     fetchMore: lineItemFetchMore,
     refetch: lineItemRefetch,
   } = useLineItemsQuery({
-    variables: queryVars,
+    variables: lineItemsQueryVars,
     skip: mode === 'campaign',
   })
 
@@ -173,6 +173,13 @@ export default function Home() {
     skip: mode !== 'campaign',
   })
 
+  var queryVars = useMemo(() => {
+    if (mode === 'campaign') {
+      return searchByCampaignQueryVars
+    } else {
+      return lineItemsQueryVars
+    }
+  }, [router.query])
   var data = mode === 'campaign' ? searchByCampaignResult : lineItemQueryResult
   var pageLoading =
     mode === 'campaign' ? searchByCampaignQueryLoading : lineItemQueryLoading
@@ -211,60 +218,13 @@ export default function Home() {
   }, [data, refreshing])
 
   useEffect(() => {
-    const handler = async () => {
-      const {
-        campaign,
-        searchField,
-        searchValue,
-        orderByField,
-        orderByDirection,
-      } = Object.fromEntries(new URLSearchParams(location.search))
-
-      if (campaign !== undefined) {
-        var mode = 'campaign'
-      } else if (searchField && searchValue) {
-        var mode = 'search'
-      } else {
-        var mode = 'all'
-      }
-
-      if (mode === 'search') {
-        var search = {
-          field: searchField,
-          value: searchValue,
-        }
-      }
-
-      if (orderByField && orderByDirection) {
-        var orderBy = {
-          field: orderByField,
-          direction: orderByDirection,
-        }
-      }
-
+    async function effect() {
       setRefreshing(true)
-
-      if (mode === 'campaign') {
-        await refetch({
-          campaign,
-          orderBy,
-        })
-      } else {
-        await refetch({
-          search,
-          orderBy,
-        })
-      }
-
+      await refetch(queryVars)
       setRefreshing(false)
     }
-
-    router.events.on('routeChangeComplete', handler)
-
-    return () => {
-      router.events.off('routeChangeComplete', handler)
-    }
-  }, [])
+    effect()
+  }, [router.query])
 
   const handleTabSelect = useCallback((key) => {
     setTab(key)
