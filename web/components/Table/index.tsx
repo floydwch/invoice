@@ -15,6 +15,11 @@ const StyledTable = styled(BSTable)`
     text-align: center;
   }
 
+  td {
+    word-break: break-all;
+    overflow: scroll;
+  }
+
   input[type='checkbox'] {
     cursor: pointer;
   }
