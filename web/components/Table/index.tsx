@@ -14,6 +14,10 @@ const StyledTable = styled(BSTable)`
   th {
     text-align: center;
   }
+
+  input[type='checkbox'] {
+    cursor: pointer;
+  }
 `
 
 const RowCheckTd = styled.td`
