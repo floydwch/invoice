@@ -23,6 +23,6 @@ query SearchByCampaign($campaign: ID!, $orderBy: OrderBy, $after: String) {
   campaign(id: $campaign) {
     id
     name
-    # reviewed
+    reviewed
   }
 }

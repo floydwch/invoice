@@ -8,7 +8,7 @@ module Mutations
       ActiveRecord::Base.transaction do
         campaign = Campaign.find(id)
         campaign.update!(reviewed: !revoke)
-        campaign.line_items.update_all!(reviewed: !revoke)
+        campaign.line_items.update_all(reviewed: !revoke)
         campaign
       end
     end

@@ -18,9 +18,12 @@ import {
 import {
   SearchByCampaignQueryVariables,
   useSearchByCampaignQuery,
+  SearchByCampaignDocument,
+  SearchByCampaignQuery,
 } from '../queries/searchByCampaign.graphql'
 import { useUpdateAdjustmentsMutation } from '../queries/updateAdjustments.graphql'
 import { useReviewLineItemMutation } from '../queries/reviewLineItem.graphql'
+import { useReviewCampaignMutation } from '../queries/reviewCampaign.graphql'
 import Table, { OrderBy } from '../components/Table'
 import Label from '../components/Label'
 
@@ -98,6 +101,23 @@ const CellInput = styled.input`
   border: 0;
 `
 
+const CampaignReviewCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 0 8px;
+
+  input {
+    margin-right: 4px;
+    cursor: pointer;
+  }
+
+  label {
+    margin: 0;
+    font-weight: bold;
+    cursor: pointer;
+  }
+`
+
 const transArgs = {
   title: 'name',
   campaign: 'campaigns.name',
@@ -109,7 +129,7 @@ const transArgs = {
 
 const reversedTransArgs = invert(transArgs)
 
-export default function Home() {
+export default function Home({ query }) {
   const client = useApolloClient()
   const router = useRouter()
   const campaign = router.query.campaign as string
@@ -180,16 +200,23 @@ export default function Home() {
       return lineItemsQueryVars
     }
   }, [router.query])
+
   var data = mode === 'campaign' ? searchByCampaignResult : lineItemQueryResult
+
   var pageLoading =
     mode === 'campaign' ? searchByCampaignQueryLoading : lineItemQueryLoading
+
   var fetchMore =
     mode === 'campaign' ? searchByCampaignFetchMore : lineItemFetchMore
+
   var refetch = mode === 'campaign' ? searchByCampaignRefetch : lineItemRefetch
 
-  const [updateAdjustments] = useUpdateAdjustmentsMutation()
+  const [updateAdjustments] = useUpdateAdjustmentsMutation({
+    ignoreResults: true,
+  })
 
-  const [reviewLineItem] = useReviewLineItemMutation()
+  const [reviewLineItem] = useReviewLineItemMutation({ ignoreResults: true })
+  const [reviewCampaign] = useReviewCampaignMutation({ ignoreResults: true })
 
   const footerRef = useRef()
 
@@ -219,30 +246,29 @@ export default function Home() {
 
   useEffect(() => {
     async function effect() {
-      setRefreshing(true)
-      await refetch(queryVars)
-      setRefreshing(false)
+      // only refreshing after initial page loading
+      if (!pageLoading) {
+        setRefreshing(true)
+        await refetch(queryVars)
+        setRefreshing(false)
+      }
     }
     effect()
-  }, [router.query])
+  }, [query])
 
   const handleTabSelect = useCallback((key) => {
     setTab(key)
   }, [])
 
   const handleOrderBy = useCallback(
-    async ({ field, direction }: OrderBy) => {
-      router.replace(
-        {
-          query: {
-            ...router.query,
-            orderByField: transArgs[field],
-            orderByDirection: direction,
-          },
+    ({ field, direction }: OrderBy) => {
+      router.replace({
+        query: {
+          ...router.query,
+          orderByField: transArgs[field],
+          orderByDirection: direction,
         },
-        undefined,
-        { shallow: true }
-      )
+      })
     },
     [router.query]
   )
@@ -252,28 +278,109 @@ export default function Home() {
   }, [])
 
   const handleCloseFilter = useCallback(() => {
-    router.push(
-      {
-        query: {},
-      },
-      undefined,
-      { shallow: true }
-    )
+    router.push({
+      query: {},
+    })
   }, [])
+
+  const handleReviewCampaign = useCallback(
+    (e) => {
+      const reviewed = e.target.checked
+
+      client.writeQuery({
+        query: SearchByCampaignDocument,
+        data: {
+          ...data,
+          lineItems: {
+            ...data.lineItems,
+            edges: data.lineItems.edges.map((edge) => ({
+              ...edge,
+              node: { ...edge.node, reviewed },
+            })),
+          },
+          campaign: {
+            ...(data as SearchByCampaignQuery).campaign,
+            reviewed,
+          },
+        },
+      })
+
+      reviewCampaign({
+        variables: { input: { id: campaign, revoke: !reviewed } },
+      })
+    },
+    [data, campaign]
+  )
+
+  const handleReviewLineItem = useCallback(
+    (id: string, checked: boolean) => {
+      // manually optimistic update due to weird behaviors of useMutation optimistic response
+      if (mode === 'campaign') {
+        if (!checked) {
+          var campaignReviewed = false
+        } else if (
+          data.lineItems.edges.every(({ node }) =>
+            node.id === id ? checked : node.reviewed
+          )
+        ) {
+          var campaignReviewed = true
+        }
+
+        client.writeQuery({
+          query: SearchByCampaignDocument,
+          data: {
+            ...data,
+            lineItems: {
+              ...data.lineItems,
+              edges: data.lineItems.edges.map((edge) => ({
+                ...edge,
+                node: {
+                  ...edge.node,
+                  reviewed: edge.node.id === id ? checked : edge.node.reviewed,
+                },
+              })),
+            },
+            campaign: {
+              ...(data as SearchByCampaignQuery).campaign,
+              reviewed: campaignReviewed,
+            },
+          },
+        })
+      } else {
+        client.writeQuery({
+          query: LineItemsDocument,
+          data: {
+            ...data,
+            lineItems: {
+              ...data.lineItems,
+              edges: data.lineItems.edges.map((edge) => ({
+                ...edge,
+                node: {
+                  ...edge.node,
+                  reviewed: edge.node.id === id ? checked : edge.node.reviewed,
+                },
+              })),
+            },
+          },
+        })
+      }
+
+      reviewLineItem({
+        variables: { input: { id, revoke: !checked } },
+      })
+    },
+    [data, mode]
+  )
 
   const form = (
     <Form
       onSubmit={async (e) => {
         e.preventDefault()
         if (formInput) {
-          router.push(
-            {
-              pathname: '/',
-              query: { searchField: curTab, searchValue: formInput },
-            },
-            undefined,
-            { shallow: true }
-          )
+          router.push({
+            pathname: '/',
+            query: { searchField: curTab, searchValue: formInput },
+          })
         }
       }}
     >
@@ -302,7 +409,7 @@ export default function Home() {
             campaign,
           },
         }) => {
-          const adjustmentsHandler = debounce(async (value) => {
+          const adjustmentsHandler = debounce((value) => {
             const newAdjustments = Number.parseFloat(value)
             const diff = newAdjustments - adjustments
 
@@ -312,12 +419,22 @@ export default function Home() {
                 ...data,
                 lineItems: {
                   ...data.lineItems,
+                  edges: data.lineItems.edges.map((edge) => ({
+                    ...edge,
+                    node: {
+                      ...edge.node,
+                      adjustments:
+                        edge.node.id === id
+                          ? newAdjustments
+                          : edge.node.adjustments,
+                    },
+                  })),
                   total: data.lineItems.total + diff,
                 },
               },
             })
 
-            await updateAdjustments({
+            updateAdjustments({
               variables: {
                 input: {
                   id,
@@ -344,7 +461,7 @@ export default function Home() {
             checked: reviewed,
             columns: [
               name,
-              <Link href={`?campaign=${campaign.id}`} shallow>
+              <Link href={`?campaign=${campaign.id}`}>
                 <StyledAnchor>{campaign.name}</StyledAnchor>
               </Link>,
               bookedAmount,
@@ -364,6 +481,17 @@ export default function Home() {
     var label = <Label onCancel={handleCloseFilter}>Search</Label>
   } else if (mode === 'campaign') {
     var label = <Label onCancel={handleCloseFilter}>Campaign</Label>
+    var campaignReviewCheckbox = data && (
+      <CampaignReviewCheckbox>
+        <input
+          type="checkbox"
+          id="review-campaign"
+          checked={(data as SearchByCampaignQuery).campaign.reviewed}
+          onChange={handleReviewCampaign}
+        ></input>
+        <label htmlFor="review-campaign">reviewed</label>
+      </CampaignReviewCheckbox>
+    )
   }
 
   return (
@@ -382,6 +510,7 @@ export default function Home() {
       </StyledTabs>
       <InfoBar>
         {label}
+        {campaignReviewCheckbox}
         <Total>Total: {total}</Total>
       </InfoBar>
       <TableWrapper
@@ -409,13 +538,7 @@ export default function Home() {
             direction: orderBy.direction,
           }}
           onOrderBy={handleOrderBy}
-          onRowCheckChange={(id: string, checked) => {
-            if (checked) {
-              reviewLineItem({ variables: { input: { id } } })
-            } else {
-              reviewLineItem({ variables: { input: { id, revoke: true } } })
-            }
-          }}
+          onRowCheckChange={handleReviewLineItem}
         ></StyledTable>
       </TableWrapper>
       {fetchingMore && <TablePlaceholder uniqueKey="table-placeholder" />}

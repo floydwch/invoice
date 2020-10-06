@@ -206,7 +206,7 @@ export default function Table({
                 <RowCheckTd key="rowCheck">
                   <input
                     type="checkbox"
-                    defaultChecked={checked}
+                    checked={checked}
                     onChange={(e) => {
                       if (onRowCheckChange) {
                         onRowCheckChange(id, e.target.checked)

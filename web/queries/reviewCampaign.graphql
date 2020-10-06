@@ -1,0 +1,6 @@
+mutation ReviewCampaign($input: ReviewCampaignInput!) {
+  reviewCampaign(input: $input) {
+    id
+    reviewed
+  }
+}
