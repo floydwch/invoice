@@ -76,8 +76,8 @@ const TablePlaceholder = (props) => (
 const InfoBar = styled.div`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   width: 100%;
-  height: 24px;
   margin-bottom: 16px;
   padding: 0 8px;
 `
