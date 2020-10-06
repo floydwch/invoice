@@ -30,7 +30,7 @@ import Label from '../components/Label'
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  max-width: 1280px;
+  max-width: 1440px;
   min-height: 100vh;
   margin: 0 auto;
   padding: 16px;
@@ -50,7 +50,7 @@ const FormRow = styled.div`
 `
 
 const StyledTable = styled(Table)`
-  min-width: 1024px;
+  min-width: 1280px;
   flex-grow: 1;
 `
 
