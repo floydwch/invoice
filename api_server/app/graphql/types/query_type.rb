@@ -29,7 +29,7 @@ module Types
       elsif orderBy && orderBy.field == 'billable_amount' && (['ASC', 'DESC'].include? orderBy.direction)
         return records.includes(:campaign).order("actual_amount + adjustments #{orderBy.direction}, line_items.id ASC")
       else
-        return records.includes(:campaign)
+        return records.includes(:campaign).order(id: :asc)
       end
     end
 
