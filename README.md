@@ -59,11 +59,11 @@ This project employs Graphql-ruby and Apollo Client to develop the GraphQL API a
 
 ## Key aspects for review
 
-- Frontend endpoint: `web/page/index.tsx`
-- Frontend global: `web/page/_app.js`
+- Frontend endpoint: `web/pages/index.tsx`
+- Frontend global: `web/pages/_app.js`
 - Frontend components: `web/components/`
 - Frontend GraphQL queries: `web/queries/`
-- Backend GraphQL implementation: `api_server/graphql/types/{line_item_type, campaign_type, query_type, mutation_type}.rb`, `api_server/graphql/mutations/`
+- Backend GraphQL implementation: `api_server/app/graphql/types/{line_item_type, campaign_type, query_type, mutation_type}.rb`, `api_server/app/graphql/mutations/`
 - Services orchestration: `docker-compose.yml`
 
 ## Conclusion
