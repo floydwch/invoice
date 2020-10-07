@@ -16,16 +16,13 @@ services:
       - elasticsearch:/usr/share/elasticsearch/data
   api:
     build: api_server
-    command:
-      ['rails', 'server', '-b', '0.0.0.0', '-p', '80', '-e', 'development']
     environment:
       SERVICE_NAME: api
       DB_HOST: '${DB_HOST}'
       DB_ADMIN: '${DB_ADMIN}'
       DB_PASSWORD: '${DB_PASSWORD}'
       ELASTICSEARCH_URL: elasticsearch
-    volumes:
-      - ./api_server:/app
+      RAILS_ENV: production
     depends_on:
       - db
       - elasticsearch
@@ -35,13 +32,8 @@ services:
       - 'traefik.http.routers.api.rule=PathPrefix(`/graphql`, `/graphiql`, `/assets`)'
   web:
     build: web
-    command: ['yarn', 'run', 'dev', '-p', '80']
     environment:
       GRAPHQL_URL: http://api/graphql
-    volumes:
-      - ./web:/app
-      - /app/node_modules
-      - /app/.next
     depends_on:
       - api
     labels:
