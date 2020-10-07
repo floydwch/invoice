@@ -1,6 +1,12 @@
 version: '3.8'
 
 services:
+  db:
+    volumes:
+      - db-dev:/var/lib/postgresql/data
+  elasticsearch:
+    volumes:
+      - elasticsearch-dev:/usr/share/elasticsearch/data
   api:
     command:
       ['rails', 'server', '-b', '0.0.0.0', '-p', '80', '-e', 'development']
@@ -14,3 +20,7 @@ services:
       - ./web:/app
       - /app/node_modules
       - /app/.next
+
+volumes:
+  db-dev:
+  elasticsearch-dev:
