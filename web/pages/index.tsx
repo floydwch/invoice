@@ -85,11 +85,14 @@ const InfoBar = styled.div`
   flex-wrap: wrap;
   width: 100%;
   margin-bottom: 8px;
-  padding: 0 8px;
 
   > * {
     margin: 8px 0;
   }
+`
+
+const StyledLabel = styled(Label)`
+  margin-right: 8px;
 `
 
 const Total = styled.div`
@@ -117,7 +120,6 @@ const CellInput = styled.input`
 const CampaignReviewCheckbox = styled.div`
   display: flex;
   align-items: center;
-  margin: 0 8px;
 
   input {
     margin-right: 4px;
@@ -512,17 +514,17 @@ export default function Home() {
   if (data) {
     if (mode === 'search') {
       var label = (
-        <Label onCancel={handleCloseFilter}>
+        <StyledLabel onCancel={handleCloseFilter}>
           <LabelContent>Search: {search.value}</LabelContent>
-        </Label>
+        </StyledLabel>
       )
     } else if (mode === 'campaign') {
       var label = (
-        <Label onCancel={handleCloseFilter}>
+        <StyledLabel onCancel={handleCloseFilter}>
           <LabelContent>
             Campaign: {(data as SearchByCampaignQuery)?.campaign.name}
           </LabelContent>
-        </Label>
+        </StyledLabel>
       )
       var campaignReviewCheckbox = (
         <CampaignReviewCheckbox>
