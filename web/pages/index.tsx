@@ -36,6 +36,12 @@ const Container = styled.div`
   padding: 16px;
 `
 
+const HeadContainer = styled.div`
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+`
+
 const StyledTabs = styled(Tabs)`
   a {
     outline: none;
@@ -373,7 +379,7 @@ export default function Home({ query }) {
   )
 
   const form = (
-    <Form
+    <form
       onSubmit={async (e) => {
         e.preventDefault()
         if (formInput) {
@@ -392,7 +398,7 @@ export default function Home({ query }) {
         ></Form.Control>
         <Button type="submit">Search</Button>
       </FormRow>
-    </Form>
+    </form>
   )
 
   const rows = useMemo(
@@ -496,23 +502,25 @@ export default function Home({ query }) {
 
   return (
     <Container>
-      <StyledTabs
-        defaultActiveKey={curTab}
-        transition={false}
-        onSelect={handleTabSelect}
-      >
-        <Tab eventKey="campaign.name" title="By campaign">
-          {form}
-        </Tab>
-        <Tab eventKey="line_item" title="By line-item">
-          {form}
-        </Tab>
-      </StyledTabs>
-      <InfoBar>
-        {label}
-        {campaignReviewCheckbox}
-        <Total>Total: {total}</Total>
-      </InfoBar>
+      <HeadContainer>
+        <StyledTabs
+          defaultActiveKey={curTab}
+          transition={false}
+          onSelect={handleTabSelect}
+        >
+          <Tab eventKey="campaign.name" title="By campaign">
+            {form}
+          </Tab>
+          <Tab eventKey="line_item" title="By line-item">
+            {form}
+          </Tab>
+        </StyledTabs>
+        <InfoBar>
+          {label}
+          {campaignReviewCheckbox}
+          <Total>Total: {total}</Total>
+        </InfoBar>
+      </HeadContainer>
       <TableWrapper
         key={router.query.value as string}
         style={{ height: rows?.length ? 'auto' : '1px' }}
