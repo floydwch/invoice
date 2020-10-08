@@ -244,13 +244,19 @@ export default function Home() {
           data.lineItems.pageInfo.hasNextPage &&
           !refreshing
         ) {
-          setFetchingMore(true)
-          await fetchMore({
-            variables: {
-              after: data.lineItems.pageInfo.endCursor,
-            },
-          })
-          setFetchingMore(false)
+          try {
+            setFetchingMore(true)
+            await fetchMore({
+              variables: {
+                after: data.lineItems.pageInfo.endCursor,
+              },
+            })
+          } catch {
+            // workaround for handling weird exception when fast refresh
+            router.reload()
+          } finally {
+            setFetchingMore(false)
+          }
         }
       })
       observer.observe(footerRef.current)
