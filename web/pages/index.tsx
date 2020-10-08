@@ -103,8 +103,11 @@ const StyledAnchor = styled.a`
 `
 
 const CellInput = styled.input`
-  padding: 0;
-  border: 0;
+  width: 100%;
+  padding: 0 4px;
+  border: 1px solid;
+  border-color: rgba(11, 11, 11, 0.2);
+  box-sizing: border-box;
 `
 
 const CampaignReviewCheckbox = styled.div`
