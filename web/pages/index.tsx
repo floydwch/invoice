@@ -142,7 +142,7 @@ const transArgs = {
 
 const reversedTransArgs = invert(transArgs)
 
-export default function Home({ query }) {
+export default function Home() {
   const client = useApolloClient()
   const router = useRouter()
   const campaign = router.query.campaign as string
@@ -260,14 +260,20 @@ export default function Home({ query }) {
   useEffect(() => {
     async function effect() {
       // only refreshing after initial page loading
-      if (!pageLoading) {
-        setRefreshing(true)
-        await refetch(queryVars)
+
+      // avoid weird undefined error when fast refresh in development environment
+      try {
+        if (!pageLoading) {
+          setRefreshing(true)
+          await refetch(queryVars)
+          setRefreshing(false)
+        }
+      } catch {
         setRefreshing(false)
       }
     }
     effect()
-  }, [query])
+  }, [router.query])
 
   const handleTabSelect = useCallback((key) => {
     setTab(key)
@@ -572,8 +578,4 @@ export default function Home({ query }) {
       <footer ref={footerRef}></footer>
     </Container>
   )
-}
-
-export const getServerSideProps = async ({ query }) => {
-  return { props: { query } }
 }
