@@ -58,6 +58,10 @@ const FormRow = styled.div`
 const StyledTable = styled(Table)`
   min-width: 1280px;
   flex-grow: 1;
+
+  th:first-child {
+    width: 128px;
+  }
 `
 
 const TableWrapper = styled.div`
