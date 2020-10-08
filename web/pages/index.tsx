@@ -84,8 +84,12 @@ const InfoBar = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   padding: 0 8px;
+
+  > * {
+    margin: 8px 0;
+  }
 `
 
 const Total = styled.div`
