@@ -124,6 +124,13 @@ const CampaignReviewCheckbox = styled.div`
   }
 `
 
+const LabelContent = styled.div`
+  max-width: 200px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+`
+
 const transArgs = {
   title: 'name',
   campaign: 'campaigns.name',
@@ -483,21 +490,33 @@ export default function Home({ query }) {
 
   const total = data?.lineItems.total
 
-  if (mode === 'search') {
-    var label = <Label onCancel={handleCloseFilter}>Search</Label>
-  } else if (mode === 'campaign') {
-    var label = <Label onCancel={handleCloseFilter}>Campaign</Label>
-    var campaignReviewCheckbox = data && (
-      <CampaignReviewCheckbox>
-        <input
-          type="checkbox"
-          id="review-campaign"
-          checked={(data as SearchByCampaignQuery).campaign.reviewed}
-          onChange={handleReviewCampaign}
-        ></input>
-        <label htmlFor="review-campaign">reviewed</label>
-      </CampaignReviewCheckbox>
-    )
+  if (data) {
+    if (mode === 'search') {
+      var label = (
+        <Label onCancel={handleCloseFilter}>
+          <LabelContent>Search: {search.value}</LabelContent>
+        </Label>
+      )
+    } else if (mode === 'campaign') {
+      var label = (
+        <Label onCancel={handleCloseFilter}>
+          <LabelContent>
+            Campaign: {(data as SearchByCampaignQuery)?.campaign.name}
+          </LabelContent>
+        </Label>
+      )
+      var campaignReviewCheckbox = (
+        <CampaignReviewCheckbox>
+          <input
+            type="checkbox"
+            id="review-campaign"
+            checked={(data as SearchByCampaignQuery).campaign.reviewed}
+            onChange={handleReviewCampaign}
+          ></input>
+          <label htmlFor="review-campaign">reviewed</label>
+        </CampaignReviewCheckbox>
+      )
+    }
   }
 
   return (

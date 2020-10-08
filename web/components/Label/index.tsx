@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, HTMLAttributes } from 'react'
 import styled from 'styled-components'
 
 const Container = styled.div`
@@ -38,11 +38,13 @@ interface LabelProps {
 }
 
 export default function Lable({
+  style,
+  className,
   onCancel,
   children,
-}: PropsWithChildren<LabelProps>) {
+}: PropsWithChildren<LabelProps> & HTMLAttributes<HTMLDivElement>) {
   return (
-    <Container onClick={onCancel}>
+    <Container style={style} className={className} onClick={onCancel}>
       {children}
       <Cross />
     </Container>
