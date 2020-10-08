@@ -138,7 +138,7 @@ const CampaignReviewCheckbox = styled.div`
 `
 
 const LabelContent = styled.div`
-  max-width: 200px;
+  max-width: 240px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -519,7 +519,15 @@ export default function Home() {
     if (mode === 'search') {
       var label = (
         <StyledLabel onCancel={handleCloseFilter}>
-          <LabelContent>Search: {search.value}</LabelContent>
+          <LabelContent>
+            Search{' '}
+            {
+              { 'campaign.name': 'Campaign', line_item: 'Line-item' }[
+                search.field
+              ]
+            }
+            : {search.value}
+          </LabelContent>
         </StyledLabel>
       )
     } else if (mode === 'campaign') {
