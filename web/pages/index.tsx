@@ -269,9 +269,9 @@ export default function Home() {
         if (!pageLoading) {
           setRefreshing(true)
           await refetch(queryVars)
-          setRefreshing(false)
         }
       } catch {
+      } finally {
         setRefreshing(false)
       }
     }
