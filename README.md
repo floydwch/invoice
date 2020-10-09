@@ -18,8 +18,8 @@
 - The user is able to see sub-totals grouped by campaign (line-items grouped by their parent campaign).
 - The user is able to see the invoice grand-total (sum of each line-item's billable amount).
 - The user is able to sort the data.
-- The user is able flag individual line-items as "reviewed" (meaning they are disabled from further editing).
-- The user is able flag "campaigns" as being reviewed, as well.
+- The user is able to flag individual line-items as "reviewed" (meaning they are disabled from further editing).
+- The user is able to flag "campaigns" as being reviewed, as well.
 - The user is able to filter the data (ie. by campaign name, etc., should affect the grand-total).
 - The user is able to share and reuse filters between users.
 
@@ -31,7 +31,7 @@ First, start the services with Docker Compose:
 
 `docker-compose up`
 
-If it's the first time to start the services, you have to setup the database when the docker-compose is ready. It will takes a few minutues to import the seed to database and create index for Elasticsearch. Please open another terminal and input:
+If it's the first time to start the services, you have to setup the database when the docker-compose is ready. It will take a few minutes to import the seed into the database and create the index for Elasticsearch. Please open another terminal and input:
 
 `docker-compose exec api rails db:setup`
 
@@ -45,17 +45,17 @@ Usually, a Rails project uses its builtin mechanism to manage the frontend, e.g.
 
 Micro-service architecture with Universal JavaScript application can be a rescue. Since Rails has an API-mode, we can use Rails as an API server, and use technology from frontend world to build the frontend application instead of Rails's template and router.
 
-Several benefits can be took from this approach. The UI part is made up of JavaScript/TypeScript modules, CSS and HTML. If the project choose React to build its UI, React's JSX is overlapping with Rails's template. Just use React with Next.js instead of Rails's template can easily earn the interoperability such as dynamic routing and loading without a browser reload in the client runtime.
+Several benefits can be taken from this approach. The UI part is made up of JavaScript/TypeScript modules, CSS and HTML. If the project chooses React to build its UI, React's JSX is overlapping with Rails's template. Just use React with Next.js instead of Rails's template can easily earn the interoperability such as dynamic routing and loading without a browser reload in the client runtime.
 
-GraphQL is another emerging technology in this project. It provides the functionality to implement a typed and composable API. With its type-checking, we can avoid to write ad-hoc codes to check the type of data in contrast to RESTFul. Since it's composable and shapeable, we can avoid write ad-hoc endpoints, focus on the query modeling, and let the frontend decide which fields are needed which reduces communication efforts.
+GraphQL is another emerging technology in this project. It provides the functionality to implement a typed and composable API. With its type-checking, we can avoid writing ad-hoc codes to check the type of data in contrast to RESTFul. Since it's composable and shapeable, we can avoid writing ad-hoc endpoints, focus on the query modeling, and let the frontend decide which fields are needed which reduces communication efforts.
 
-On styling, this project uses Styled-components to author the style which is a CSS-in-JS approach. We can benefit from its interoperability between JavaScript and CSS such as reducing the time to name CSS classes and the capability to inject variables to CSS. It's useful when there is a need to implement dynamic CSS animations.
+On styling, this project uses Styled-components to author the style which is a CSS-in-JS approach. We can benefit from its interoperability between JavaScript and CSS such as reducing the time to name CSS classes and the capability to inject variables into CSS. It's useful when there is a need to implement dynamic CSS animations.
 
 Gateway or reversed proxy is also an important decision should be made in a micro-service oriented project. This project chooses Traefik instead of Nginx because it's a container-aware technology. We can configure Traefik directly on Docker Compose without hassle in contrast to Nginx which needs customized configs and a setup script. [Its performance is also comparable to Nginx](https://www.loggly.com/blog/benchmarking-5-popular-load-balancers-nginx-haproxy-envoy-traefik-and-alb/).
 
 ### The downside
 
-This project employs Graphql-ruby and Apollo Client to develop the GraphQL API and its consumer. As emerging technologies, they suffer from the lacks of documentation and unstable API. Developers might have the chance to dig into the source code to figure out how to make a simple thing work.
+This project employs Graphql-ruby and Apollo Client to develop the GraphQL API and its consumer. As emerging technologies, they suffer from the lack of documentation and unstable API. Developers might have the chance to dig into the source code to figure out how to make a simple thing work.
 
 ## Key aspects for review
 
