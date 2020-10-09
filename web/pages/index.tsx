@@ -146,6 +146,19 @@ const LabelContent = styled.div`
   overflow: hidden;
 `
 
+interface CoverHeaderProps {
+  visible: boolean
+}
+
+const CoverHeader = styled.div<CoverHeaderProps>`
+  position: fixed;
+  top: ${({ visible }) => (visible ? 0 : '-99px')};
+  width: calc(100% - 32px);
+  background: white;
+  transition: 0.4s top;
+  z-index: 1;
+`
+
 const transArgs = {
   title: 'name',
   campaign: 'campaigns.name',
@@ -188,6 +201,7 @@ export default function Home() {
       ? search.field
       : 'campaign.name'
   )
+  const [showCoverHeader, setShowCoverHeader] = useState<boolean>()
 
   let lineItemsQueryVars: LineItemsQueryVariables = {}
   let searchByCampaignQueryVars: SearchByCampaignQueryVariables = { campaign }
@@ -246,6 +260,7 @@ export default function Home() {
   const [reviewLineItem] = useReviewLineItemMutation({ ignoreResults: true })
   const [reviewCampaign] = useReviewCampaignMutation({ ignoreResults: true })
 
+  const headContainerRef = useRef()
   const footerRef = useRef()
 
   useEffect(() => {
@@ -277,6 +292,23 @@ export default function Home() {
       }
     }
   }, [data, refreshing])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].intersectionRatio === 0) {
+          setShowCoverHeader(true)
+        } else {
+          setShowCoverHeader(false)
+        }
+      },
+      { threshold: [0, 0.0001] }
+    )
+    observer.observe(headContainerRef.current)
+    return () => {
+      observer.disconnect()
+    }
+  }, [pageLoading])
 
   useEffect(() => {
     async function effect() {
@@ -556,7 +588,7 @@ export default function Home() {
 
   return (
     <Container>
-      <HeadContainer>
+      <HeadContainer ref={headContainerRef}>
         <StyledTabs
           defaultActiveKey={curTab}
           transition={false}
@@ -575,6 +607,32 @@ export default function Home() {
           <Total>Total: {total}</Total>
         </InfoBar>
       </HeadContainer>
+      <CoverHeader visible={showCoverHeader}>
+        <HeadContainer>
+          <InfoBar>
+            {label}
+            {campaignReviewCheckbox}
+            <Total>Total: {total}</Total>
+          </InfoBar>
+        </HeadContainer>
+        <StyledTable
+          style={{ marginBottom: 0 }}
+          headers={[
+            'title',
+            'campaign',
+            'bookedAmount',
+            'actualAmount',
+            'adjustments',
+            'billableAmount',
+          ]}
+          withRowCheck="reviewed"
+          orderBy={{
+            field: reversedTransArgs[orderBy.field],
+            direction: orderBy.direction,
+          }}
+          onOrderBy={handleOrderBy}
+        ></StyledTable>
+      </CoverHeader>
       <TableWrapper
         key={router.query.value as string}
         style={{ height: rows?.length ? 'auto' : '1px' }}
