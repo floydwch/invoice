@@ -27,6 +27,8 @@ Temporary Items
 #
 .env
 .env.sample
+config/master.key
+credentials.yml.enc
 *.rbc
 capybara-*.html
 log
