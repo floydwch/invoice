@@ -152,11 +152,12 @@ interface CoverHeaderProps {
 
 const CoverHeader = styled.div<CoverHeaderProps>`
   position: fixed;
-  top: ${({ visible }) => (visible ? 0 : '-107px')};
+  top: 0;
   width: calc(100% - 32px);
   padding-top: 8px;
   background: white;
-  transition: 0.4s top;
+  transform: translateY(${({ visible }) => (visible ? 0 : '-100%')});
+  transition: 0.4s transform;
   z-index: 1;
 `
 
