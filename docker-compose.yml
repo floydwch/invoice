@@ -23,6 +23,7 @@ services:
       DB_PASSWORD: '${DB_PASSWORD}'
       ELASTICSEARCH_URL: elasticsearch
       RAILS_ENV: production
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     depends_on:
       - db
       - elasticsearch
