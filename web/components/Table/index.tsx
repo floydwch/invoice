@@ -206,7 +206,7 @@ export default function Table({
   )
 
   if (!loading) {
-    if (rows.length) {
+    if (rows?.length) {
       var tbody = (
         <tbody>
           {rows.map(({ id, checked, columns }) => (
