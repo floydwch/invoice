@@ -14,6 +14,7 @@ const Container = styled.div`
   border-radius: 16px;
   font-size: 12px;
   font-weight: bold;
+  user-select: none;
   cursor: pointer;
 `
 
