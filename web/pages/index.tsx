@@ -666,10 +666,10 @@ export default function Home() {
           transition={false}
           onSelect={handleTabSelect}
         >
-          <Tab eventKey="campaign.name" title="By campaign">
+          <Tab eventKey="campaign.name" title="By Campaign">
             {form}
           </Tab>
-          <Tab eventKey="line_item" title="By line-item">
+          <Tab eventKey="line_item" title="By Line-item">
             {form}
           </Tab>
         </StyledTabs>
@@ -722,7 +722,7 @@ export default function Home() {
             'Adjustments',
             'Billable Amount',
           ]}
-          withRowCheck="reviewed"
+          withRowCheck="Reviewed"
           rows={rows}
           emptyPlaceholder={<div>No results.</div>}
           loading={!data || refreshing}
