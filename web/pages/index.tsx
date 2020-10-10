@@ -135,6 +135,7 @@ const CampaignReviewCheckbox = styled.div`
   label {
     margin: 0;
     font-weight: bold;
+    user-select: none;
     cursor: pointer;
   }
 `
@@ -264,6 +265,7 @@ export default function Home() {
 
   const headContainerRef = useRef<HTMLDivElement>()
   const footerRef = useRef()
+  const campaignReviewCheckboxInputRef = useRef<HTMLInputElement>()
 
   useEffect(() => {
     if (!pageLoading) {
@@ -610,11 +612,18 @@ export default function Home() {
         <CampaignReviewCheckbox>
           <input
             type="checkbox"
-            id="review-campaign"
+            ref={campaignReviewCheckboxInputRef}
             checked={(data as SearchByCampaignQuery).campaign.reviewed}
             onChange={handleReviewCampaign}
           ></input>
-          <label htmlFor="review-campaign">reviewed</label>
+          <label
+            // use onClick instead of htmlFor to prevent scrolling side-effect
+            onClick={(e) => {
+              campaignReviewCheckboxInputRef.current.click()
+            }}
+          >
+            reviewed
+          </label>
         </CampaignReviewCheckbox>
       )
     }
