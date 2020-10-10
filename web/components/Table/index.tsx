@@ -25,6 +25,14 @@ const StyledTable = styled(BSTable)`
   }
 `
 
+interface TrProps {
+  checked?: boolean
+}
+
+const StyledTr = styled.tr<TrProps>`
+  background: ${({ checked }) => (checked ? '#f5f5f5' : 'unset')};
+`
+
 const RowCheckTd = styled.td`
   text-align: center;
 `
@@ -210,7 +218,7 @@ export default function Table({
       var tbody = (
         <tbody>
           {rows.map(({ id, checked, columns }) => (
-            <tr key={id}>
+            <StyledTr key={id} checked={checked}>
               {withRowCheck && (
                 <RowCheckTd key="rowCheck">
                   <input
@@ -227,7 +235,7 @@ export default function Table({
               {columns.map((column, i) => (
                 <td key={i}>{column}</td>
               ))}
-            </tr>
+            </StyledTr>
           ))}
         </tbody>
       )
