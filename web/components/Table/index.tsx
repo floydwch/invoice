@@ -16,6 +16,7 @@ const StyledTable = styled(BSTable)`
   }
 
   td {
+    padding: 1rem;
     word-break: break-all;
     overflow: scroll;
   }

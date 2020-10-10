@@ -101,6 +101,11 @@ const StyledLabel = styled(Label)`
 
 const Total = styled.div`
   margin-left: auto;
+
+  label {
+    margin: 0;
+    font-weight: bold;
+  }
 `
 
 const StyledAnchor = styled.a`
@@ -647,7 +652,9 @@ export default function Home() {
         <InfoBar ref={InfoBarRef}>
           {label}
           {campaignReviewCheckbox}
-          <Total>Total: {total}</Total>
+          <Total>
+            <label>Total:</label> {total}
+          </Total>
         </InfoBar>
       </HeadContainer>
       <CoverHeader visible={showCoverHeader}>
@@ -655,7 +662,9 @@ export default function Home() {
           <InfoBar>
             {label}
             {campaignReviewCheckbox}
-            <Total>Total: {total}</Total>
+            <Total>
+              <label>Total:</label> {total}
+            </Total>
           </InfoBar>
         </HeadContainer>
         <StyledTable
