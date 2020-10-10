@@ -169,12 +169,12 @@ const CoverHeader = styled.div<CoverHeaderProps>`
 `
 
 const transArgs = {
-  title: 'name',
-  campaign: 'campaigns.name',
-  bookedAmount: 'booked_amount',
-  actualAmount: 'actual_amount',
-  adjustments: 'adjustments',
-  billableAmount: 'billable_amount',
+  Title: 'name',
+  Campaign: 'campaigns.name',
+  'Booked Amount': 'booked_amount',
+  'Actual Amount': 'actual_amount',
+  Adjustments: 'adjustments',
+  'Billable Amount': 'billable_amount',
 }
 
 const reversedTransArgs = invert(transArgs)
@@ -651,7 +651,7 @@ export default function Home() {
               campaignReviewCheckboxInputRef.current.click()
             }}
           >
-            reviewed
+            Reviewed
           </label>
         </CampaignReviewCheckbox>
       )
@@ -694,14 +694,14 @@ export default function Home() {
         <StyledTable
           style={{ marginBottom: 0 }}
           headers={[
-            'title',
-            'campaign',
-            'bookedAmount',
-            'actualAmount',
-            'adjustments',
-            'billableAmount',
+            'Title',
+            'Campaign',
+            'Booked Amount',
+            'Actual Amount',
+            'Adjustments',
+            'Billable Amount',
           ]}
-          withRowCheck="reviewed"
+          withRowCheck="Reviewed"
           orderBy={{
             field: reversedTransArgs[orderBy.field],
             direction: orderBy.direction,
@@ -715,12 +715,12 @@ export default function Home() {
       >
         <StyledTable
           headers={[
-            'title',
-            'campaign',
-            'bookedAmount',
-            'actualAmount',
-            'adjustments',
-            'billableAmount',
+            'Title',
+            'Campaign',
+            'Booked Amount',
+            'Actual Amount',
+            'Adjustments',
+            'Billable Amount',
           ]}
           withRowCheck="reviewed"
           rows={rows}
