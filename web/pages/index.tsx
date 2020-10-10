@@ -354,6 +354,16 @@ export default function Home() {
   }, [coverHeaderRef.current, tableRef.current])
 
   useEffect(() => {
+    const topOffset =
+      headContainerRef.current.getClientRects()[0].height -
+      InfoBarRef.current.getClientRects()[0].height
+
+    if (window.scrollY > topOffset) {
+      window.scrollTo(0, topOffset)
+    }
+  }, [router.query])
+
+  useEffect(() => {
     async function effect() {
       // avoid weird undefined error when fast refresh in development environment
       try {
@@ -386,16 +396,6 @@ export default function Home() {
     },
     [router.query]
   )
-
-  useEffect(() => {
-    const topOffset =
-      headContainerRef.current.getClientRects()[0].height -
-      InfoBarRef.current.getClientRects()[0].height
-
-    if (window.scrollY > topOffset) {
-      window.scrollTo(0, topOffset)
-    }
-  }, [router.query])
 
   const handleFormChange = useCallback((e) => {
     setFormInput(e.target.value)
