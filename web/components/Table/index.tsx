@@ -45,7 +45,7 @@ interface CaretProps {
 const Caret = styled.div<CaretProps>`
   width: 0;
   height: 0;
-  margin: 1px 8px;
+  margin: 1px 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-bottom: 5px solid ${({ activated }) => (activated ? '#222' : '#bbb')};
@@ -94,8 +94,8 @@ const CaretToolbarContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   height: 24px;
+  margin-left: 8px;
   vertical-align: top;
-  cursor: pointer;
 `
 
 interface CaretToolbarProps {
