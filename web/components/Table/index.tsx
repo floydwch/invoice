@@ -1,4 +1,10 @@
-import { HTMLAttributes, ReactNode, useEffect, useState } from 'react'
+import {
+  HTMLAttributes,
+  ReactNode,
+  useEffect,
+  useState,
+  forwardRef,
+} from 'react'
 import styled, { createGlobalStyle } from 'styled-components'
 import BSTable from 'react-bootstrap/Table'
 
@@ -159,19 +165,22 @@ interface TableProps {
   onRowCheckChange?: (id: string | number, checked: boolean) => void
 }
 
-export default function Table({
-  className,
-  style,
-  headers,
-  withRowCheck,
-  rows,
-  emptyPlaceholder,
-  loading,
-  loadingPlaceholder,
-  orderBy,
-  onOrderBy,
-  onRowCheckChange,
-}: TableProps & HTMLAttributes<HTMLTableElement>) {
+export default forwardRef(function Table(
+  {
+    className,
+    style,
+    headers,
+    withRowCheck,
+    rows,
+    emptyPlaceholder,
+    loading,
+    loadingPlaceholder,
+    orderBy,
+    onOrderBy,
+    onRowCheckChange,
+  }: TableProps & HTMLAttributes<HTMLTableElement>,
+  ref
+) {
   const headerElements = headers.map((title, i) => {
     const checked = title === orderBy.field
 
@@ -257,11 +266,11 @@ export default function Table({
   return (
     <>
       <GlobalStyle />
-      <StyledTable className={className} style={style} responsive>
+      <StyledTable className={className} style={style} responsive ref={ref}>
         {thead}
         {tbody}
       </StyledTable>
       {loading && loadingPlaceholder}
     </>
   )
-}
+})

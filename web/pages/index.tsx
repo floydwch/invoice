@@ -26,6 +26,7 @@ import { useReviewLineItemMutation } from '../queries/reviewLineItem.graphql'
 import { useReviewCampaignMutation } from '../queries/reviewCampaign.graphql'
 import Table, { OrderBy } from '../components/Table'
 import Label from '../components/Label'
+import bindScroll from '../utils/bindScroll'
 
 const Container = styled.div`
   display: flex;
@@ -269,7 +270,9 @@ export default function Home() {
   const [reviewCampaign] = useReviewCampaignMutation({ ignoreResults: true })
 
   const headContainerRef = useRef<HTMLDivElement>()
-  const footerRef = useRef()
+  const coverHeaderRef = useRef<HTMLDivElement>()
+  const tableRef = useRef<HTMLTableElement>()
+  const footerRef = useRef<HTMLDivElement>()
   const campaignReviewCheckboxInputRef = useRef<HTMLInputElement>()
 
   useEffect(() => {
@@ -328,6 +331,27 @@ export default function Home() {
       }
     }
   }, [pageLoading])
+
+  useEffect(() => {
+    // .table-responsive is an internal wrapper from react-bootstrap table
+    // it's a scrollable container
+    if (coverHeaderRef.current && tableRef.current) {
+      return bindScroll(
+        coverHeaderRef.current.querySelector('.table-responsive'),
+        tableRef.current.parentNode as HTMLElement
+      )
+    }
+  }, [coverHeaderRef.current, tableRef.current])
+
+  useEffect(() => {
+    // reversed scroll binding
+    if (coverHeaderRef.current && tableRef.current) {
+      return bindScroll(
+        tableRef.current.parentNode as HTMLElement,
+        coverHeaderRef.current.querySelector('.table-responsive')
+      )
+    }
+  }, [coverHeaderRef.current, tableRef.current])
 
   useEffect(() => {
     async function effect() {
@@ -657,7 +681,7 @@ export default function Home() {
           </Total>
         </InfoBar>
       </HeadContainer>
-      <CoverHeader visible={showCoverHeader}>
+      <CoverHeader visible={showCoverHeader} ref={coverHeaderRef}>
         <HeadContainer>
           <InfoBar>
             {label}
@@ -711,6 +735,7 @@ export default function Home() {
           }}
           onOrderBy={handleOrderBy}
           onRowCheckChange={handleReviewLineItem}
+          ref={tableRef}
         ></StyledTable>
       </TableWrapper>
       {fetchingMore && <TablePlaceholder uniqueKey="table-placeholder" />}
