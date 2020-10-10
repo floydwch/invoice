@@ -179,17 +179,17 @@ const transArgs = {
 
 const reversedTransArgs = invert(transArgs)
 
-export default function Home() {
+export default function Home({ query }) {
   const client = useApolloClient()
   const router = useRouter()
   const campaign = router.query.campaign as string
   const search = {
-    field: router.query.searchField as string,
-    value: router.query.searchValue as string,
+    field: (router.query || query).searchField as string,
+    value: (router.query || query).searchValue as string,
   }
   const orderBy = {
-    field: router.query.orderByField as string,
-    direction: router.query.orderByDirection as string,
+    field: (router.query || query).orderByField as string,
+    direction: (router.query || query).orderByDirection as string,
   }
 
   if (campaign !== undefined) {
@@ -270,6 +270,7 @@ export default function Home() {
   const [reviewCampaign] = useReviewCampaignMutation({ ignoreResults: true })
 
   const headContainerRef = useRef<HTMLDivElement>()
+  const InfoBarRef = useRef<HTMLDivElement>()
   const coverHeaderRef = useRef<HTMLDivElement>()
   const tableRef = useRef<HTMLTableElement>()
   const footerRef = useRef<HTMLDivElement>()
@@ -304,8 +305,6 @@ export default function Home() {
       }
     }
   }, [data, refreshing])
-
-  const InfoBarRef = useRef<HTMLDivElement>()
 
   useEffect(() => {
     if (InfoBarRef.current) {
@@ -742,4 +741,10 @@ export default function Home() {
       <footer ref={footerRef}></footer>
     </Container>
   )
+}
+
+export function getServerSideProps({ query }) {
+  return {
+    props: { query },
+  }
 }
