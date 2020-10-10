@@ -11,8 +11,9 @@ const GlobalStyle = createGlobalStyle`
 const StyledTable = styled(BSTable)`
   table-layout: fixed;
 
-  th {
+  thead th {
     text-align: center;
+    border-bottom-width: 1px;
   }
 
   td {
