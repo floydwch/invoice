@@ -262,7 +262,7 @@ export default function Home() {
   const [reviewLineItem] = useReviewLineItemMutation({ ignoreResults: true })
   const [reviewCampaign] = useReviewCampaignMutation({ ignoreResults: true })
 
-  const headContainerRef = useRef()
+  const headContainerRef = useRef<HTMLDivElement>()
   const footerRef = useRef()
 
   useEffect(() => {
@@ -295,29 +295,38 @@ export default function Home() {
     }
   }, [data, refreshing])
 
+  const InfoBarRef = useRef<HTMLDivElement>()
+
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].intersectionRatio === 0) {
-          setShowCoverHeader(true)
-        } else {
-          setShowCoverHeader(false)
-        }
-      },
-      { threshold: [0, 0.0001] }
-    )
-    observer.observe(headContainerRef.current)
-    return () => {
-      observer.disconnect()
+    if (InfoBarRef.current) {
+      const { bottom: infoBarBottom } = InfoBarRef.current.getClientRects()[0]
+      const { bottom: prevSibBottom } = (InfoBarRef.current
+        .previousSibling as HTMLElement).getClientRects()[0]
+      const rootMarginTop = prevSibBottom - infoBarBottom
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].intersectionRatio === 0) {
+            setShowCoverHeader(true)
+          } else {
+            setShowCoverHeader(false)
+          }
+        },
+        // Use rootMargin as a workaround to include the region cantains the "total" field. The value is the distance between the bottom of InfoBar's previous sibling and the bottom of InfoBar.
+        { threshold: [0, 0.0001], rootMargin: `${rootMarginTop}px 0px 0px` }
+      )
+      observer.observe(headContainerRef.current)
+      return () => {
+        observer.disconnect()
+      }
     }
   }, [pageLoading])
 
   useEffect(() => {
     async function effect() {
-      // only refreshing after initial page loading
-
       // avoid weird undefined error when fast refresh in development environment
       try {
+        // only refreshing after initial page loading
         if (!pageLoading) {
           setRefreshing(true)
           await refetch(queryVars)
@@ -346,6 +355,16 @@ export default function Home() {
     },
     [router.query]
   )
+
+  useEffect(() => {
+    const topOffset =
+      headContainerRef.current.getClientRects()[0].height -
+      InfoBarRef.current.getClientRects()[0].height
+
+    if (window.scrollY > topOffset) {
+      window.scrollTo(0, topOffset)
+    }
+  }, [router.query])
 
   const handleFormChange = useCallback((e) => {
     setFormInput(e.target.value)
@@ -535,7 +554,12 @@ export default function Home() {
             checked: reviewed,
             columns: [
               name,
-              <Link href={`?campaign=${campaign.id}`}>
+              <Link
+                href={`?campaign=${campaign.id}`}
+                passHref
+                scroll={false}
+                shallow
+              >
                 <StyledAnchor>{campaign.name}</StyledAnchor>
               </Link>,
               bookedAmount,
@@ -548,6 +572,14 @@ export default function Home() {
       ),
     [data]
   )
+
+  const headContainerOffset = useMemo(() => {
+    if (headContainerRef.current) {
+      const { top, height } = headContainerRef.current.getClientRects()[0]
+      return top + window.scrollY + height
+    }
+    return 0
+  }, [headContainerRef.current])
 
   const total = data?.lineItems.total
 
@@ -589,7 +621,7 @@ export default function Home() {
   }
 
   return (
-    <Container>
+    <Container style={{ minHeight: `calc(100vh + ${headContainerOffset}px)` }}>
       <HeadContainer ref={headContainerRef}>
         <StyledTabs
           defaultActiveKey={curTab}
@@ -603,7 +635,7 @@ export default function Home() {
             {form}
           </Tab>
         </StyledTabs>
-        <InfoBar>
+        <InfoBar ref={InfoBarRef}>
           {label}
           {campaignReviewCheckbox}
           <Total>Total: {total}</Total>
