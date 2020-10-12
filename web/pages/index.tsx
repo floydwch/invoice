@@ -321,7 +321,7 @@ export default function Home({ query }) {
             setShowCoverHeader(false)
           }
         },
-        // Use rootMargin as a workaround to include the region cantains the "total" field. The value is the distance between the bottom of InfoBar's previous sibling and the bottom of InfoBar.
+        // Use rootMargin as a workaround to include the region contains the "total" field. The value is the distance between the bottom of InfoBar's previous sibling and the bottom of InfoBar.
         { threshold: [0, 0.0001], rootMargin: `${rootMarginTop}px 0px 0px` }
       )
       observer.observe(headContainerRef.current)
