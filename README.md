@@ -49,7 +49,7 @@ To reduce the needed actions on exploring the rows, this project chooses to make
 
 The dataset consists of line-items, and each line-item belongs to a campaign, and there are requirements of group actions on campaigns. This project supposes the line-item itself is meaningful for the users, i.e., user would like to check the line-item directly outside a campaign, it is also a loose hypothesis that in contrast to making each line-item embedded in a campaign first. Without loss of functionality, the product lets user group the line-item with its campaign by providing a filter via a link.
 
-Since the dataset is large enough to pagination, the decision of pagination should be made. To reduce the operations, this project chooses infinite-scroll pagination because it seems not to matter the index of the page. To eliminate the necessary of remembering names of columns when user scrolls the table, the product also provides a float header for the information.
+Since the dataset is large enough to paginate, the decision of pagination should be made. To reduce the operations, this project chooses infinite-scroll pagination because it seems not to matter the index of the page. To eliminate the necessary of remembering names of columns when user scrolls the table, the product also provides a float header for the information.
 
 ### Technical perspective
 
