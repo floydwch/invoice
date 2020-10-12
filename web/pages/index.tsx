@@ -675,9 +675,11 @@ export default function Home({ query }) {
         <InfoBar ref={InfoBarRef}>
           {label}
           {campaignReviewCheckbox}
-          <Total>
-            <label>Total:</label> {total}
-          </Total>
+          {total && (
+            <Total>
+              <label>Total:</label> {total}
+            </Total>
+          )}
         </InfoBar>
       </HeadContainer>
       <CoverHeader visible={showCoverHeader} ref={coverHeaderRef}>
@@ -685,9 +687,11 @@ export default function Home({ query }) {
           <InfoBar>
             {label}
             {campaignReviewCheckbox}
-            <Total>
-              <label>Total:</label> {total}
-            </Total>
+            {total && (
+              <Total>
+                <label>Total:</label> {total}
+              </Total>
+            )}
           </InfoBar>
         </HeadContainer>
         <StyledTable
