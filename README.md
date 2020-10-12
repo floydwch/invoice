@@ -41,9 +41,9 @@ After the services are started and the database is setup, go to [http://localhos
 
 ### Production perspective
 
-This project values intuition and simplicity. Its feature set consists of displaying, editing, filtering and pagination of a non-small large dataset which is also simple in the meanwhile. To achieve the simplicity, this project chooses to make every action synchronize to the server automatically just like a desktop software which means user doesn't need to push a confirm button to update an adjustments value or use an indirect button to change the state for starting a action.
+This project values intuition and simplicity. Its feature set consists of displaying, editing, filtering and pagination of a non-small dataset which is also simple in the meanwhile. To achieve the simplicity, this project chooses to make every action synchronize to the server automatically just like a desktop software which means user doesn't need to push a confirm button to update an adjustments value or use an indirect button to change the state for starting a action.
 
-The dataset has some long float numeral columns, and it supposed to be important for its integrity. There are different methods can be used to represent a long column, such as making the column adjustable, making the column scrollable, breaking the cell into multi-lines, or making a scrollable large table.
+The dataset has some wide float numeral columns, and it supposed to be important for its integrity. There are different methods can be used to represent a wide column, such as making the column adjustable, making the column scrollable, breaking the cell into multi-lines, or making a scrollable large table.
 
 To reduce the needed actions on exploring the rows, this project chooses to make a large table with large and fixed columns, it's kind of progressive design that when user uses this product on a large screen, it displays all columns, or it let user scroll to explore the columns on a small screen.
 
