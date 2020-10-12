@@ -1,4 +1,4 @@
-export default (el1: HTMLElement, el2: HTMLElement) => {
+export default function bindScroll(el1: HTMLElement, el2: HTMLElement) {
   let ticking = false
 
   const handler = (e: Event) => {
